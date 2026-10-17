@@ -1,7 +1,7 @@
 #include "lduMatrix.h"
 
 
-lduMatrix::lduMatrix(nodeScalarField field)
+lduMatrix::lduMatrix(const nodeScalarField& field)
 :
 	diag_(field.node(), 0.0)
 {}
@@ -9,35 +9,57 @@ lduMatrix::lduMatrix(nodeScalarField field)
 
 void lduMatrix::buildLduAddressing
 (
-	nodeScalarField phi, 
-	std::vector<std::pair<int, int>> couplings
+	const nodeScalarField& phi, 
+	std::vector<pairType> pairs
 )
 {
-	const auto& list = phi.internalNodeList();
-
 	// i < j for each pair (i, j) = (owner, neighbor)
-	for (auto& p : couplings)
-		if (p.first > p.second) std::swap(p.first, p.second);
+	for (auto& p : pairs)
+		if (p.couplings.first > p.couplings.second) 
+		{
+			std::swap(p.couplings.first, p.couplings.second);
+
+			switch(p.directions)
+			{				
+				case direction::W:
+					p.directions = direction::E;
+					break;
+
+				case direction::S:
+					p.directions = direction::N;
+					break;
+
+				case direction::WW:
+					p.directions = direction::EE;
+					break;
+
+				case direction::SS:
+					p.directions = direction::NN;
+					break;
+			}
+		}
+			
 	// sort couplings according to owner index
-	std::sort(couplings.begin(), couplings.end());
+	std::sort(pairs.begin(), pairs.end());
 	// eliminate repeated pairs
-	couplings.erase(std::unique(couplings.begin(), couplings.end()),
-                    couplings.end());
+	pairs.erase(std::unique(pairs.begin(), pairs.end()),
+                    pairs.end());
 
 	// Count how many time a node appears to be a owner
 	ownerStart_.assign(phi.node() + 1, 0);
-	for (int k=0; k<couplings.size(); k++)
+	for (int k=0; k<pairs.size(); k++)
 	{
-		const auto& [l, u] = couplings[k];
+		const auto& [l, u] = pairs[k].couplings;
 
 		// Compose addressing array
 		lowerAddr_.push_back(l);
 		upperAddr_.push_back(u);
+		pairDirection_.push_back(pairs[k].directions);
 
 		// Find index of l in internalNodeList
-		auto it = std::find(list.begin(), list.end(), l);
-		int ownerIndex = std::distance(list.begin(), it);
+		int ownerIndex = phi.internalConvert(l);
 
+		// Count
 		ownerStart_[ownerIndex + 1]++;
 	}
 
@@ -61,8 +83,7 @@ void lduMatrix::buildLduAddressing
 		const int nbr = upperAddr_[k];
 
 		// Find index nbr in internalNodeList
-		auto it = std::find(list.begin(), list.end(), nbr);
-		int nbrIndex = std::distance(list.begin(), it);
+		int nbrIndex = phi.internalConvert(nbr);
 
 		losortStart_[nbrIndex + 1]++;
 	}
@@ -72,4 +93,57 @@ void lduMatrix::buildLduAddressing
 	{
 		losortStart_[k + 1] += losortStart_[k];
 	}
+
+	// Determine sizes of diag_, lower_ and upper_
+	diag_.assign(phi.node(), 0.0);
+	lower_.assign(lowerAddr_.size(), 0.0);
+	upper_.assign(upperAddr_.size(), 0.0);
+}
+
+
+void lduMatrix::buildDiag(int center, double coeff)
+{
+	diag_[center] += coeff;
+}
+
+
+void lduMatrix::buildLower(int f, double coeff)
+{
+	lower_[f] += coeff;
+}
+
+
+void lduMatrix::buildUpper(int f, double coeff)
+{
+	upper_[f] += coeff;
+}
+
+
+const std::vector<int>& lduMatrix::lowerAddr() const
+{
+	return lowerAddr_;
+}
+
+
+const std::vector<int>& lduMatrix::upperAddr() const
+{
+	return upperAddr_;
+}
+
+
+const std::vector<int>& lduMatrix::ownerStart() const
+{
+	return ownerStart_;
+}
+
+
+const std::vector<int>& lduMatrix::losortStart() const
+{
+	return losortStart_;
+}
+
+
+const std::vector<lduMatrix::direction>& lduMatrix::pairDirection() const
+{
+	return pairDirection_;
 }

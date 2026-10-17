@@ -33,8 +33,8 @@ public:
         // Return number of internal faces
         int face() const;
 
-        // Return internal node list
-        const std::vector<int>& internalNodeList() const;
+        // Convert (i,j) order to internal node order
+        int internalConvert(int p) const;
 };
 
 

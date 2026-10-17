@@ -1,6 +1,7 @@
 #include "centralDiff.h"
 #include <utility>
 #include <vector>
+#include <cmath>
 
 diffusionScheme::centralDiff::centralDiff(bool ghost)
 :
@@ -10,14 +11,17 @@ diffusionScheme::centralDiff::centralDiff(bool ghost)
 
 lduMatrix diffusionScheme::centralDiff::secondScheme
 (
-    nodeScalarField phi
+    nodeScalarField phi,
+    nodeScalarField X,
+    nodeScalarField Y
 )
 {
     const int Nx = phi.Nx();
     const int Ny = phi.Ny();
 
     lduMatrix A(phi);
-    std::vector<std::pair<int, int>> couplings;
+    std::vector<lduMatrix::pairType> pairs;
+    std::vector<std::pair<double, double>> LU;
 
     for (int i = 1; i < Nx-1; i++)
     {
@@ -30,19 +34,52 @@ lduMatrix diffusionScheme::centralDiff::secondScheme
             if (i + 1 < Nx - 1)
             {
                 std::pair<int, int> pairE(index, index + 1);
-                couplings.push_back(pairE);
+                pairs.push_back({pairE, lduMatrix::direction::E});
             }
 
             // N
             if (j + 1 < Ny - 1)
             {
                 std::pair<int, int> pairN(index, index + Nx);
-                couplings.push_back(pairN);
+                pairs.push_back({pairN, lduMatrix::direction::N});
             }
         }
     }
 
-    A.buildLduAddressing(phi, couplings);
+    A.buildLduAddressing(phi, pairs);
+
+    for (int k = 0; k < A.lowerAddr().size(); k++)
+    {
+        int owner = A.lowerAddr()[k];
+        int neighbor = A.upperAddr()[k];
+
+        int ownerInternal = phi.internalConvert(owner);
+        int neighborInternal = phi.internalConvert(neighbor);
+
+        double hX = X.getValue(owner) - X.getValue(neighbor);
+        double hY = Y.getValue(owner) - Y.getValue(neighbor);
+
+        switch(A.pairDirection()[k])
+        {
+            case lduMatrix::direction::E:
+                // a_ij, i = P, j = E, i < j
+                A.buildDiag(ownerInternal, -1/pow(hX, 2));
+                A.buildUpper(neighborInternal, 1/pow(hX, 2));
+                // a_ji, j = P, i = W, i < j
+                A.buildDiag(neighborInternal, -1/pow(hX, 2));
+                A.buildLower(ownerInternal, 1/pow(hX, 2));
+                break;
+
+            case lduMatrix::direction::N:
+                // a_ij, i = P, j = N, i < j
+                A.buildDiag(ownerInternal, -1/pow(hY, 2));
+                A.buildUpper(neighborInternal, 1/pow(hY, 2));
+                // a_ji, j = P, i = S, i < j
+                A.buildDiag(neighborInternal, -1/pow(hY, 2));
+                A.buildLower(ownerInternal, 1/pow(hY, 2));  
+                break;
+        }
+    }
 
     return A;
 }

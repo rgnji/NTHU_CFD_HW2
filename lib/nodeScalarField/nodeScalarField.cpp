@@ -40,7 +40,8 @@ int nodeScalarField::face() const
 }
 
 
-const std::vector<int>& nodeScalarField::internalNodeList() const
+int nodeScalarField::internalConvert(int p) const
 {
-    return internalNodeList_;
+    auto it = std::find(internalNodeList_.begin(), internalNodeList_.end(), p);
+    return std::distance(internalNodeList_.begin(), it);
 }

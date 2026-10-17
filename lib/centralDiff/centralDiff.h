@@ -26,7 +26,9 @@ public:
         // Second-order accuracy scheme
         lduMatrix secondScheme
         (
-            const nodeScalarField phi
+            const nodeScalarField phi,
+            const nodeScalarField X,
+            const nodeScalarField Y
         );
 
         // Fourth-order accuracy scheme
