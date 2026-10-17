@@ -11,9 +11,9 @@ diffusionScheme::centralDiff::centralDiff(bool ghost)
 
 lduMatrix diffusionScheme::centralDiff::secondScheme
 (
-    nodeScalarField phi,
-    nodeScalarField X,
-    nodeScalarField Y
+    const nodeScalarField& phi,
+    const nodeScalarField& X,
+    const nodeScalarField& Y
 )
 {
     const int Nx = phi.Nx();
@@ -21,7 +21,6 @@ lduMatrix diffusionScheme::centralDiff::secondScheme
 
     lduMatrix A(phi);
     std::vector<lduMatrix::pairType> pairs;
-    std::vector<std::pair<double, double>> LU;
 
     for (int i = 1; i < Nx-1; i++)
     {
@@ -87,7 +86,9 @@ lduMatrix diffusionScheme::centralDiff::secondScheme
 
 lduMatrix diffusionScheme::centralDiff::fourthScheme
 (
-    nodeScalarField phi
+    const nodeScalarField& phi,
+    const nodeScalarField& X,
+    const nodeScalarField& Y
 )
 {
 

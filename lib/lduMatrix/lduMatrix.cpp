@@ -119,6 +119,24 @@ void lduMatrix::buildUpper(int f, double coeff)
 }
 
 
+const std::vector<double>& lduMatrix::diag() const
+{
+	return diag_;
+}
+
+
+const std::vector<double>& lduMatrix::lower() const
+{
+	return lower_;
+}
+
+
+const std::vector<double>& lduMatrix::upper() const
+{
+	return upper_;
+}
+
+
 const std::vector<int>& lduMatrix::lowerAddr() const
 {
 	return lowerAddr_;

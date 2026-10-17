@@ -33,8 +33,11 @@ public:
         // Return number of internal faces
         int face() const;
 
-        // Convert (i,j) order to internal node order
+        // Convert global to local(no boundary included)
         int internalConvert(int p) const;
+
+        // Convert local to global(boundary included)
+        int globalConver(int p) const;
 };
 
 

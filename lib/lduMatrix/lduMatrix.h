@@ -100,16 +100,17 @@ public:
         void buildLower(const int f, const double coeff);
         void buildUpper(const int f, const double coeff);
 
-        // Return lowerAddr_
-        const std::vector<int>& lowerAddr() const;
+        // Return coefficients
+        const std::vector<double>& diag() const;
+        const std::vector<double>& lower() const;
+        const std::vector<double>& upper() const;
 
-        // Return upperAddr_
+        // Return addressing
+        const std::vector<int>& lowerAddr() const;
         const std::vector<int>& upperAddr() const;
 
-        // Return ownerStart_
+        // Return start
         const std::vector<int>& ownerStart() const;
-
-        // Return losortStart_
         const std::vector<int>& losortStart() const;
 
         // Return pairDirection_
