@@ -1,16 +1,18 @@
 #include "lduMatrix.h"
+#include <iostream>
 
 
 lduMatrix::lduMatrix(const nodeScalarField& field)
 :
-	diag_(field.node(), 0.0)
+	diag_(field.node(), 0.0),
+	b_(field.node())
 {}
 
 
 void lduMatrix::buildLduAddressing
 (
 	const nodeScalarField& phi, 
-	std::vector<pairType> pairs
+	std::vector<pairType>& pairs
 )
 {
 	// i < j for each pair (i, j) = (owner, neighbor)
@@ -35,6 +37,10 @@ void lduMatrix::buildLduAddressing
 
 				case direction::SS:
 					p.directions = direction::NN;
+					break;
+
+				default:
+					std::cout << "Wrong direction in internal node pairs!" << std::endl;
 					break;
 			}
 		}
@@ -94,10 +100,25 @@ void lduMatrix::buildLduAddressing
 		losortStart_[k + 1] += losortStart_[k];
 	}
 
-	// Determine sizes of diag_, lower_ and upper_
-	diag_.assign(phi.node(), 0.0);
+	// Determine sizes of lower_ and upper_
 	lower_.assign(lowerAddr_.size(), 0.0);
 	upper_.assign(upperAddr_.size(), 0.0);
+}
+
+
+void lduMatrix::buildBoundaryAddressing
+(
+	const nodeScalarField& phi,
+	std::vector<pairType>& boundaryPairs
+)
+{
+	for (int k=0; k<boundaryPairs.size(); k++)
+	{
+		auto [inter, bound] = boundaryPairs[k].couplings;
+		internalAddr_.push_back(inter);
+		boundaryAddr_.push_back(bound);
+		boundaryDirection_.push_back(boundaryPairs[k].directions);
+	}
 }
 
 
@@ -119,6 +140,12 @@ void lduMatrix::buildUpper(int f, double coeff)
 }
 
 
+void lduMatrix::buildB(int f, double coeff)
+{
+	b_[f] += coeff;
+}
+
+
 const std::vector<double>& lduMatrix::diag() const
 {
 	return diag_;
@@ -136,6 +163,11 @@ const std::vector<double>& lduMatrix::upper() const
 	return upper_;
 }
 
+const std::vector<double>& lduMatrix::b() const
+{
+	return b_;
+}
+
 
 const std::vector<int>& lduMatrix::lowerAddr() const
 {
@@ -146,6 +178,12 @@ const std::vector<int>& lduMatrix::lowerAddr() const
 const std::vector<int>& lduMatrix::upperAddr() const
 {
 	return upperAddr_;
+}
+
+
+const std::vector<int>& lduMatrix::losortAddr() const
+{
+	return losortAddr_;
 }
 
 
@@ -164,4 +202,44 @@ const std::vector<int>& lduMatrix::losortStart() const
 const std::vector<lduMatrix::direction>& lduMatrix::pairDirection() const
 {
 	return pairDirection_;
+}
+
+
+const std::vector<int>& lduMatrix::internalAddr() const
+{
+	return internalAddr_;
+}
+
+
+const std::vector<int>& lduMatrix::boundaryAddr() const
+{
+	return boundaryAddr_;
+}
+
+
+const std::vector<lduMatrix::direction>& lduMatrix::boundaryDirection() const
+{
+	return boundaryDirection_;
+}
+
+
+double lduMatrix::residualNorm(const nodeScalarField& phi) const
+{
+    std::vector<double> r(diag_.size());
+
+    // r_P = b_P - a_PP * x_P
+    for (int P = 0; P < (int)diag_.size(); P++)
+        r[P] = b_[P] - diag_[P] * phi.getValue(phi.globalIndex(P));
+
+    // 非對角項
+    for (int f = 0; f < (int)lowerAddr_.size(); f++)
+    {
+        int l = lowerAddr_[f], u = upperAddr_[f];          // global
+        r[phi.internalConvert(l)] -= upper_[f] * phi.getValue(u);
+        r[phi.internalConvert(u)] -= lower_[f] * phi.getValue(l);
+    }
+
+    double sum = 0.0;
+    for (double v : r) sum += v * v;
+    return std::sqrt(sum / r.size());
 }

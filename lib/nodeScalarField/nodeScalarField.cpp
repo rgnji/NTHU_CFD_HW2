@@ -1,19 +1,13 @@
 #include "nodeScalarField.h"
+#include <algorithm>
+#include <iterator>
 
 nodeScalarField::nodeScalarField(int Nx, int Ny)
 :
     scalarField(Nx * Ny),
     Nx_(Nx),
     Ny_(Ny)
-{
-    for (int j=1; j<Ny-1; j++)
-    {
-        for (int i=1; i<Nx-1; i++)
-        {
-            internalNodeList_.push_back(i + j * Nx);
-        }
-    }
-}
+{}
 
 
 int nodeScalarField::Nx() const
@@ -34,14 +28,19 @@ int nodeScalarField::node() const
 }
 
 
-int nodeScalarField::face() const
+int nodeScalarField::internalConvert(int p) const
 {
-    return (Ny_ - 2)*(Nx_ - 2)*2 + (Nx_ + Ny_);
+    int i = p % Nx_;
+    int j = p / Nx_;
+
+    return (i - 1) + (j - 1) * (Nx_ - 2);
 }
 
 
-int nodeScalarField::internalConvert(int p) const
+int nodeScalarField::globalIndex(int P) const
 {
-    auto it = std::find(internalNodeList_.begin(), internalNodeList_.end(), p);
-    return std::distance(internalNodeList_.begin(), it);
+    int i = P % (Nx_ - 2) + 1;
+    int j = P / (Nx_ - 2) + 1;
+
+    return i + j * Nx_;
 }

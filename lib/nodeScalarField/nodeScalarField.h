@@ -1,7 +1,7 @@
 #ifndef nodeScalarField_H
 #define nodeScalarField_H
 
-#include "scalarField.h"
+#include "scalarField/scalarField.h"
 
 class nodeScalarField
 :
@@ -9,8 +9,6 @@ class nodeScalarField
 {
     // Mesh sizes (include boundary)
     int Nx_, Ny_;
-
-    std::vector<int> internalNodeList_;
 
 
 public:
@@ -30,14 +28,11 @@ public:
         // Return number of internal nodes
         int node() const;
 
-        // Return number of internal faces
-        int face() const;
-
         // Convert global to local(no boundary included)
         int internalConvert(int p) const;
-
-        // Convert local to global(boundary included)
-        int globalConver(int p) const;
+        
+        // Convert local(no boundary included) to global
+        int globalIndex(int P) const;
 };
 
 

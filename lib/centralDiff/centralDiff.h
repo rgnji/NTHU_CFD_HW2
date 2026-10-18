@@ -1,8 +1,8 @@
 #ifndef centralDiff_H
 #define centralDiff_H
 
-#include "lduMatrix.h"
-#include "scalarField.h"
+#include "lduMatrix/lduMatrix.h"
+#include "scalarField/scalarField.h"
 
 namespace diffusionScheme
 {
@@ -32,12 +32,13 @@ public:
         );
 
         // Fourth-order accuracy scheme
+        /*
         lduMatrix fourthScheme
         (
             const nodeScalarField& phi,
             const nodeScalarField& X,
             const nodeScalarField& Y
-        );
+        );*/
 };
 
 };

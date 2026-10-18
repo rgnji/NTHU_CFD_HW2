@@ -1,13 +1,11 @@
 /*
-原本的資料（只存一份，按 owner 排序）：
 f         :  0  1  2  3  4  5  6
 lowerAddr :  0  0  1  1  2  3  4
 upperAddr :  1  3  2  4  5  4  5
 upper     : ...
 lower     : ...
 
-額外建立的索引（只存 f）：
-losortAddr  :  0  2  1  3  5  4  6     ← 把 f 按 upperAddr 排序
+losortAddr  :  0  2  1  3  5  4  6     ← arrange f according to upperAddr
 losortStart :  0  0  1  2  3  5  7
 */
 
@@ -19,15 +17,15 @@ losortStart :  0  0  1  2  3  5  7
 #include <utility>
 #include <algorithm>
 #include <numeric>
-#include "scalarField.h"
-#include "nodeScalarField.h"
+#include "scalarField/scalarField.h"
+#include "nodeScalarField/nodeScalarField.h"
 
 class lduMatrix
 {
 public:
 
     // Possible direction for structured grids
-    const static enum class direction {E,W,N,S,EE,WW,NN,SS};
+    enum class direction {E,W,N,S,EE,WW,NN,SS,NE,NW,SE,SW};
 
     struct pairType
     {
@@ -60,22 +58,36 @@ private:
 
     // Upper triangle
     std::vector<double> upper_;
+
+    // Righ hand side
+    std::vector<double> b_;
     
-    // Lower triangle addressing
-    std::vector<int> lowerAddr_;
+    // Internal pairs
 
-    // Upper triangle addressing
-    std::vector<int> upperAddr_;
+        // Lower triangle addressing
+        std::vector<int> lowerAddr_;
 
-    // Row pointer in CSR format for lower triangle
-    std::vector<int> ownerStart_;
+        // Upper triangle addressing
+        std::vector<int> upperAddr_;
 
-    std::vector<int> losortAddr_;
+        // Row pointer in CSR format for lower triangle
+        std::vector<int> ownerStart_;
 
-    std::vector<int> losortStart_;
+        std::vector<int> losortAddr_;
 
-    // Record the direction of the pairs
-    std::vector<direction> pairDirection_;
+        std::vector<int> losortStart_;
+
+        // Record the direction of the internal pairs
+        std::vector<direction> pairDirection_;
+
+    // Boundary pairs
+
+        // Record the internal-boudary pairs
+        std::vector<int> internalAddr_;
+
+        std::vector<int> boundaryAddr_;
+
+        std::vector<direction> boundaryDirection_;
     
 
 public:
@@ -92,22 +104,32 @@ public:
         void buildLduAddressing
         (
             const nodeScalarField& phi,
-            std::vector<pairType> pairs
+            std::vector<pairType>& pairs
+        );
+
+        // Build addressing of internal-boudary pairs
+        void buildBoundaryAddressing
+        (
+            const nodeScalarField& phi,
+            std::vector<pairType>& boundaryPairs
         );
 
         // Build LDU coefficients
         void buildDiag(const int center, const double coeff);
         void buildLower(const int f, const double coeff);
         void buildUpper(const int f, const double coeff);
+        void buildB(const int f, const double coeff);
 
         // Return coefficients
         const std::vector<double>& diag() const;
         const std::vector<double>& lower() const;
         const std::vector<double>& upper() const;
+        const std::vector<double>& b() const;
 
         // Return addressing
         const std::vector<int>& lowerAddr() const;
         const std::vector<int>& upperAddr() const;
+        const std::vector<int>& losortAddr() const;
 
         // Return start
         const std::vector<int>& ownerStart() const;
@@ -115,6 +137,15 @@ public:
 
         // Return pairDirection_
         const std::vector<direction>& pairDirection() const;
+
+        const std::vector<int>& internalAddr() const;
+
+        const std::vector<int>& boundaryAddr() const;
+
+        const std::vector<direction>& boundaryDirection() const;
+
+        // Calculate residual
+        double residualNorm(const nodeScalarField& phi) const;
 };
 
 
