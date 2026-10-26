@@ -1,25 +1,16 @@
 cmake_minimum_required(VERSION 3.10)
-project(NTHU_CFD_HW1)
+project(NTHU_CFD_HW2 LANGUAGE CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-file(GLOB_RECURSE LIB_SOURCES
-    CONFIGURE_DEPENDS
-    "lib/*.cpp"
-)
 
 if(MSVC)
     add_compile_options(/utf-8)
 endif()
 
-add_executable(NTHU_CFD_HW1
-    main.cpp
-    ${LIB_SOURCES}
-)
+add_subdirectory(modules/utility)
+add_subdirectory(modules/linearSolver)
+add_subdirectory(modules/diffusionScheme)
+add_subdirectory(modules/convectionScheme)
 
-target_include_directories(NTHU_CFD_HW1 PRIVATE 
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/lib
-)
-
+add_subdirectory(src)

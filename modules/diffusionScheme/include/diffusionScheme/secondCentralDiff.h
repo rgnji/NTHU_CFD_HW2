@@ -1,13 +1,13 @@
-#ifndef centralDiff_H
-#define centralDiff_H
+#ifndef secondCentralDiff_H
+#define secondCentralDiff_H
 
-#include "lduMatrix/lduMatrix.h"
-#include "scalarField/scalarField.h"
+#include "utility/lduMatrix/lduMatrix.h"
+#include "utility/scalarField/scalarField.h"
 
 namespace diffusionScheme
 {
 
-class centralDiff
+class secondCentralDiff
 {
     // Ghost node flag
     bool ghost_;
@@ -18,7 +18,7 @@ public:
     // Constructor
 
         // Construct from order of accuracy
-        centralDiff(bool ghost=true);
+        secondCentralDiff(bool ghost=true);
 
     
     // Member functions
@@ -30,15 +30,6 @@ public:
             const nodeScalarField& X,
             const nodeScalarField& Y
         );
-
-        // Fourth-order accuracy scheme
-        /*
-        lduMatrix fourthScheme
-        (
-            const nodeScalarField& phi,
-            const nodeScalarField& X,
-            const nodeScalarField& Y
-        );*/
 };
 
 };

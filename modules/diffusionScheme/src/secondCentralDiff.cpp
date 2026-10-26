@@ -1,16 +1,16 @@
-#include "centralDiff.h"
+#include "secondCentralDiff.h"
 #include <utility>
 #include <vector>
 #include <cmath>
 #include <iostream>
 
-diffusionScheme::centralDiff::centralDiff(bool ghost)
+diffusionScheme::secondCentralDiff::secondCentralDiff(bool ghost)
 :
     ghost_(ghost)
 {}
 
 
-lduMatrix diffusionScheme::centralDiff::secondScheme
+lduMatrix diffusionScheme::secondCentralDiff::secondScheme
 (
     const nodeScalarField& phi,
     const nodeScalarField& X,
@@ -161,13 +161,3 @@ lduMatrix diffusionScheme::centralDiff::secondScheme
     return A;
 }
 
-/*
-lduMatrix diffusionScheme::centralDiff::fourthScheme
-(
-    const nodeScalarField& phi,
-    const nodeScalarField& X,
-    const nodeScalarField& Y
-)
-{
-
-}*/
