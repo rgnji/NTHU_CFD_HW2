@@ -17,8 +17,8 @@ losortStart :  0  0  1  2  3  5  7
 #include <utility>
 #include <algorithm>
 #include <numeric>
-#include "scalarField/scalarField.h"
-#include "nodeScalarField/nodeScalarField.h"
+#include "utility/scalarField.h"
+#include "utility/nodeScalarField.h"
 
 class lduMatrix
 {

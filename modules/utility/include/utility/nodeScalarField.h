@@ -1,7 +1,7 @@
 #ifndef nodeScalarField_H
 #define nodeScalarField_H
 
-#include "scalarField/scalarField.h"
+#include "utility/scalarField.h"
 
 class nodeScalarField
 :

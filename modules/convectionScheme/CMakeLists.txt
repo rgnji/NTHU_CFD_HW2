@@ -1,4 +1,6 @@
-add_library(convectionScheme STATIC src/*.cpp)
+add_library(convectionScheme STATIC
+    src/upwind.cpp
+)
 
 target_include_directories(convectionScheme PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 

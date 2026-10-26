@@ -1,4 +1,4 @@
-#include "secondCentralDiff.h"
+#include "diffusionScheme/secondCentralDiff.h"
 #include <utility>
 #include <vector>
 #include <cmath>

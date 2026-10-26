@@ -1,5 +1,7 @@
 add_library(utility STATIC
-    src/*.cpp
+    src/lduMatrix.cpp
+    src/nodeScalarField.cpp
+    src/scalarField.cpp
 )
 
 target_include_directories(utility PUBLIC

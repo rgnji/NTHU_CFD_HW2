@@ -1,4 +1,6 @@
-add_library(diffusionScheme STATIC src/*.cpp)
+add_library(diffusionScheme STATIC
+    src/secondCentralDiff.cpp
+)
 
 target_include_directories(diffusionScheme PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 

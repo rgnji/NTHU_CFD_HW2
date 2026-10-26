@@ -1,4 +1,7 @@
-add_library(linearSolver STATIC src/*.cpp)
+add_library(linearSolver STATIC
+    src/GaussSeidel.cpp
+    src/Jacobi.cpp
+)
 
 target_include_directories(linearSolver PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 

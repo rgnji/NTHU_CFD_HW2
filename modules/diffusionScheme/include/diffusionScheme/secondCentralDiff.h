@@ -1,8 +1,8 @@
 #ifndef secondCentralDiff_H
 #define secondCentralDiff_H
 
-#include "utility/lduMatrix/lduMatrix.h"
-#include "utility/scalarField/scalarField.h"
+#include "utility/lduMatrix.h"
+#include "utility/scalarField.h"
 
 namespace diffusionScheme
 {
