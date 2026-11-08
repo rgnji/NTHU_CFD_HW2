@@ -24,11 +24,11 @@ public:
     // Member functions
 
         // Second-order accuracy scheme
-        lduMatrix secondScheme
+        lduMatrix interpolate
         (
-            const nodeScalarField& phi,
-            const nodeScalarField& X,
-            const nodeScalarField& Y
+            const orthoSquareMesh& phi,
+            const orthoSquareMesh& X,
+            const orthoSquareMesh& Y
         );
 };
 

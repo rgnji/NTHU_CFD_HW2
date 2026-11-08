@@ -1,72 +1,42 @@
-#include "lduMatrix.h"
+#include "utility/lduMatrix.h"
 #include <iostream>
 
 
-lduMatrix::lduMatrix(const nodeScalarField& field)
+// * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
+
+lduMatrix::lduMatrix(const orthoSquareMesh& field)
 :
-	diag_(field.node(), 0.0),
-	b_(field.node())
-{}
-
-
-void lduMatrix::buildLduAddressing
-(
-	const nodeScalarField& phi, 
-	std::vector<pairType>& pairs
-)
+	nFaces_(field.faces().size()),
+	diag_(field.nCells(), 0.0),
+	lower_(nFaces_, 0.0),
+	upper_(nFaces_, 0.0),
+	b_(field.nCells(), 0.0),
+	lowerAddr_(field.owner()),
+	upperAddr_(field.neighbor()),
+	ownerStart_(field.nCells()+1, 0),
+	losortAddr_(nFaces_, 0),
+	losortStart_(field.nCells()+1, 0)
 {
-	// i < j for each pair (i, j) = (owner, neighbor)
-	for (auto& p : pairs)
-		if (p.couplings.first > p.couplings.second) 
-		{
-			std::swap(p.couplings.first, p.couplings.second);
+	buildLduAddressing();
+}
 
-			switch(p.directions)
-			{				
-				case direction::W:
-					p.directions = direction::E;
-					break;
 
-				case direction::S:
-					p.directions = direction::N;
-					break;
+// * * * * * * * * * * * * * Private Member Functions * * * * * * * * * * * *//
 
-				case direction::WW:
-					p.directions = direction::EE;
-					break;
-
-				case direction::SS:
-					p.directions = direction::NN;
-					break;
-
-				default:
-					std::cout << "Wrong direction in internal node pairs!" << std::endl;
-					break;
-			}
-		}
-			
+void lduMatrix::buildLduAddressing()
+{
+	/*
 	// sort couplings according to owner index
 	std::sort(pairs.begin(), pairs.end());
 	// eliminate repeated pairs
 	pairs.erase(std::unique(pairs.begin(), pairs.end()),
                     pairs.end());
+	*/
 
-	// Count how many time a node appears to be a owner
-	ownerStart_.assign(phi.node() + 1, 0);
-	for (int k=0; k<pairs.size(); k++)
+	// Collect owners
+	for (int k : lowerAddr_)
 	{
-		const auto& [l, u] = pairs[k].couplings;
-
-		// Compose addressing array
-		lowerAddr_.push_back(l);
-		upperAddr_.push_back(u);
-		pairDirection_.push_back(pairs[k].directions);
-
-		// Find index of l in internalNodeList
-		int ownerIndex = phi.internalConvert(l);
-
-		// Count
-		ownerStart_[ownerIndex + 1]++;
+		ownerStart_[k + 1]++;
 	}
 
 	// prefix sum
@@ -76,22 +46,15 @@ void lduMatrix::buildLduAddressing
 	}
 
 	// The original index of upperAddr_ if couplings is sorted according to .second()
-	losortAddr_.assign(upperAddr_.size(), 0);
 	std::iota(losortAddr_.begin(), losortAddr_.end(), 0);
 	std::stable_sort(losortAddr_.begin(), losortAddr_.end(), [this](int i1, int i2) {
 		return upperAddr_[i1] < upperAddr_[i2];
 	});
 
-	// Count how many times a node appears to be the neighbor
-	losortStart_.assign(phi.node() + 1, 0);
-	for (int k=0; k<upperAddr_.size(); k++)
+	// Count how many times a cell appears to be the neighbor
+	for (int k : upperAddr_)
 	{
-		const int nbr = upperAddr_[k];
-
-		// Find index nbr in internalNodeList
-		int nbrIndex = phi.internalConvert(nbr);
-
-		losortStart_[nbrIndex + 1]++;
+		losortStart_[k + 1]++;
 	}
 
 	// prefix sum
@@ -99,16 +62,14 @@ void lduMatrix::buildLduAddressing
 	{
 		losortStart_[k + 1] += losortStart_[k];
 	}
-
-	// Determine sizes of lower_ and upper_
-	lower_.assign(lowerAddr_.size(), 0.0);
-	upper_.assign(upperAddr_.size(), 0.0);
 }
 
 
+// * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
+
 void lduMatrix::buildBoundaryAddressing
 (
-	const nodeScalarField& phi,
+	const orthoSquareMesh& phi,
 	std::vector<pairType>& boundaryPairs
 )
 {
@@ -223,7 +184,7 @@ const std::vector<lduMatrix::direction>& lduMatrix::boundaryDirection() const
 }
 
 
-double lduMatrix::residualNorm(const nodeScalarField& phi) const
+double lduMatrix::residualNorm(const orthoSquareMesh& phi) const
 {
     std::vector<double> r(diag_.size());
 

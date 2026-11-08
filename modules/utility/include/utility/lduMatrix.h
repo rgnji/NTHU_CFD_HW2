@@ -18,14 +18,14 @@ losortStart :  0  0  1  2  3  5  7
 #include <algorithm>
 #include <numeric>
 #include "utility/scalarField.h"
-#include "utility/nodeScalarField.h"
+#include "utility/orthoSquareMesh.h"
 
 class lduMatrix
 {
 public:
 
     // Possible direction for structured grids
-    enum class direction {E,W,N,S,EE,WW,NN,SS,NE,NW,SE,SW};
+    enum class direction {E,W,N,S};
 
     struct pairType
     {
@@ -50,44 +50,56 @@ public:
 
 private:
 
-    // Diagonal
-    std::vector<double> diag_;
+    // Private data
 
-    // Lower triangle
-    std::vector<double> lower_;
+        // Number of internal faces
+        int nFaces_;
 
-    // Upper triangle
-    std::vector<double> upper_;
+        // Coefficients
 
-    // Righ hand side
-    std::vector<double> b_;
-    
-    // Internal pairs
+            // Diagonal
+            std::vector<double> diag_;
 
-        // Lower triangle addressing
-        std::vector<int> lowerAddr_;
+            // Lower triangle
+            std::vector<double> lower_;
 
-        // Upper triangle addressing
-        std::vector<int> upperAddr_;
+            // Upper triangle
+            std::vector<double> upper_;
 
-        // Row pointer in CSR format for lower triangle
-        std::vector<int> ownerStart_;
+            // Righ hand side
+            std::vector<double> b_;
+        
+        // Internal pairs
 
-        std::vector<int> losortAddr_;
+            // Lower triangle addressing
+            std::vector<int> lowerAddr_;
 
-        std::vector<int> losortStart_;
+            // Upper triangle addressing
+            std::vector<int> upperAddr_;
 
-        // Record the direction of the internal pairs
-        std::vector<direction> pairDirection_;
+            // Row pointer in CSR format for lower triangle
+            std::vector<int> ownerStart_;
 
-    // Boundary pairs
+            std::vector<int> losortAddr_;
 
-        // Record the internal-boudary pairs
-        std::vector<int> internalAddr_;
+            std::vector<int> losortStart_;
 
-        std::vector<int> boundaryAddr_;
+            // Record the direction of the internal pairs
+            std::vector<direction> pairDirection_;
 
-        std::vector<direction> boundaryDirection_;
+        // Boundary pairs
+
+            // Record the internal-boudary pairs
+            std::vector<int> internalAddr_;
+
+            std::vector<int> boundaryAddr_;
+
+            std::vector<direction> boundaryDirection_;
+
+    // Private Member Functions
+
+        // Build the addressing from field
+        void buildLduAddressing();
     
 
 public:
@@ -95,22 +107,15 @@ public:
     // Constructor
 
         // Construct from field
-        lduMatrix(const nodeScalarField& field);
+        lduMatrix(const orthoSquareMesh& field);
 
 
     // Member functions
 
-        // Build the addressing from field
-        void buildLduAddressing
-        (
-            const nodeScalarField& phi,
-            std::vector<pairType>& pairs
-        );
-
         // Build addressing of internal-boudary pairs
         void buildBoundaryAddressing
         (
-            const nodeScalarField& phi,
+            const orthoSquareMesh& phi,
             std::vector<pairType>& boundaryPairs
         );
 
@@ -145,7 +150,7 @@ public:
         const std::vector<direction>& boundaryDirection() const;
 
         // Calculate residual
-        double residualNorm(const nodeScalarField& phi) const;
+        double residualNorm(const orthoSquareMesh& phi) const;
 };
 
 

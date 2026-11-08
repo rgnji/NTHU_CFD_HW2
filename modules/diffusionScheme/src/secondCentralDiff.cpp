@@ -10,11 +10,11 @@ diffusionScheme::secondCentralDiff::secondCentralDiff(bool ghost)
 {}
 
 
-lduMatrix diffusionScheme::secondCentralDiff::secondScheme
+lduMatrix diffusionScheme::secondCentralDiff::interpolate
 (
-    const nodeScalarField& phi,
-    const nodeScalarField& X,
-    const nodeScalarField& Y
+    const orthoSquareMesh& phi,
+    const orthoSquareMesh& X,
+    const orthoSquareMesh& Y
 )
 {
     const int Nx = phi.Nx();
