@@ -2,6 +2,7 @@
 #define orthoSquareMesh_H
 
 #include <vector>
+#include <string>
 
 class orthoSquareMesh
 {
@@ -13,6 +14,14 @@ public:
         double x,y;
     };
 
+    // Patch information container
+    struct patch
+    {
+        std::string name;
+        int startFace;
+        int nFaces;
+    };
+
    
 private:
 
@@ -21,6 +30,9 @@ private:
         // Mesh sizes (include boundary)
         int Nx_, Ny_;
         double dx_, dy_;
+        
+        // Total cells
+        int nCells_;
 
         // Points
         std::vector<coordinate> points_;
@@ -39,10 +51,9 @@ private:
 
         // Cell of larger index in a pair
         std::vector<int> neighbor_;
-        
-        // Total cells
-        int nCells_;
 
+        // Patch information
+        std::vector<patch> patches_;
 
     // Private Member Functions
 

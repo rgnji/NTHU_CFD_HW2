@@ -10,8 +10,8 @@ orthoSquareMesh::orthoSquareMesh(int Nx, int Ny, double dx, double dy)
     Ny_(Ny),
     dx_(dx),
     dy_(dy),
-    points_(Nx_*Ny_),
-    nCells_((Nx_-1)*(Ny_-1))
+    nCells_((Nx_-1)*(Ny_-1)),
+    points_(Nx_*Ny_)
 {
     build();
 }
@@ -71,6 +71,56 @@ void orthoSquareMesh::build()
                 Sf_.push_back(dx_);
             }
         }
+    }
+
+    // Build patch geometry
+    // left patch
+    patches_.push_back({std::string("left"), int(faces_.size()), cellNumY});
+    for (int j=0; j<cellNumY; j++)
+    {
+        owner_.push_back(j * cellNumX);
+        int pointOwner = j * Nx_;
+        int pointNeighbor = (j + 1) * Nx_;
+        std::vector<int> face{pointOwner, pointNeighbor};
+        faces_.push_back(face);
+        Nf_.push_back({-1.0, 0.0});
+        Sf_.push_back(dy_);
+    }
+    // right patch
+    patches_.push_back({std::string("right"), int(faces_.size()), cellNumY});
+    for (int j=0; j<cellNumY; j++)
+    {
+        owner_.push_back((j + 1) * cellNumX - 1);
+        int pointOwner = (j + 1) * Nx_ - 1;
+        int pointNeighbor = (j + 2) * Nx_ - 1;
+        std::vector<int> face{pointOwner, pointNeighbor};
+        faces_.push_back(face);
+        Nf_.push_back({1.0, 0.0});
+        Sf_.push_back(dy_);
+    }
+    // bottom patch
+    patches_.push_back({std::string("bottom"), int(faces_.size()), cellNumX});
+    for (int i=0; i<cellNumX; i++)
+    {
+        owner_.push_back(i);
+        int pointOwner = i;
+        int pointNeighbor = i + 1;
+        std::vector<int> face{pointOwner, pointNeighbor};
+        faces_.push_back(face);
+        Nf_.push_back({0.0, -1.0});
+        Sf_.push_back(dx_);
+    }
+    // top patch
+    patches_.push_back({std::string("top"), int(faces_.size()), cellNumX});
+    for (int i=0; i<cellNumX; i++)
+    {
+        owner_.push_back((cellNumY - 1) * cellNumX + i);
+        int pointOwner = (Ny_ - 1) * Nx_ + i;
+        int pointNeighbor = (Ny_ - 1) * Nx_ + i + 1;
+        std::vector<int> face{pointOwner, pointNeighbor};
+        faces_.push_back(face);
+        Nf_.push_back({0.0, 1.0});
+        Sf_.push_back(dx_);
     }
 }
 
