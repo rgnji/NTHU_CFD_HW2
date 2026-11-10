@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 class orthoSquareMesh
 {
@@ -15,7 +16,7 @@ public:
     };
 
     // Patch information container
-    struct patch
+    struct Patch
     {
         std::string name;
         int startFace;
@@ -52,13 +53,19 @@ private:
         // Cell of larger index in a pair
         std::vector<int> neighbor_;
 
+        // Patch name list
+        std::vector<std::string> patchNames_;
+
         // Patch information
-        std::vector<patch> patches_;
+        std::map<std::string, Patch> patches_;
 
     // Private Member Functions
 
-        // Calculate mesh information
+        // Arrange internal mesh information
         void build();
+
+        // Arrange patch information
+        void buildPatch(); 
 
 
 public:
@@ -85,6 +92,12 @@ public:
 
         // Return reference of neighbor
         const std::vector<int>& neighbor() const;
+
+        // Return reference of patch information
+        const std::vector<std::string>& patchNames() const;
+
+        // Return specific patch information
+        const Patch& patchInfo(std::string name) const;
 
         // Return total cells
         int nCells() const;

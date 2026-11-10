@@ -1,6 +1,8 @@
 #include "utility/orthoSquareMesh.h"
 #include <algorithm>
 #include <iterator>
+#include <iostream>
+#include <cstdlib>
 
 // * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
 
@@ -73,9 +75,18 @@ void orthoSquareMesh::build()
         }
     }
 
-    // Build patch geometry
+    buildPatch();
+}
+
+
+void orthoSquareMesh::buildPatch()
+{
+    int cellNumX = Nx_ - 1;
+    int cellNumY = Ny_ - 1;
+
     // left patch
-    patches_.push_back({std::string("left"), int(faces_.size()), cellNumY});
+    patchNames_.push_back(std::string("left"));
+    patches_["left"] = {std::string("left"), int(faces_.size()), cellNumY};
     for (int j=0; j<cellNumY; j++)
     {
         owner_.push_back(j * cellNumX);
@@ -86,8 +97,10 @@ void orthoSquareMesh::build()
         Nf_.push_back({-1.0, 0.0});
         Sf_.push_back(dy_);
     }
+
     // right patch
-    patches_.push_back({std::string("right"), int(faces_.size()), cellNumY});
+    patchNames_.push_back(std::string("right"));
+    patches_["right"] = {std::string("right"), int(faces_.size()), cellNumY};
     for (int j=0; j<cellNumY; j++)
     {
         owner_.push_back((j + 1) * cellNumX - 1);
@@ -98,8 +111,10 @@ void orthoSquareMesh::build()
         Nf_.push_back({1.0, 0.0});
         Sf_.push_back(dy_);
     }
+
     // bottom patch
-    patches_.push_back({std::string("bottom"), int(faces_.size()), cellNumX});
+    patchNames_.push_back(std::string("bottom"));
+    patches_["bottom"] = {std::string("bottom"), int(faces_.size()), cellNumX};
     for (int i=0; i<cellNumX; i++)
     {
         owner_.push_back(i);
@@ -110,8 +125,10 @@ void orthoSquareMesh::build()
         Nf_.push_back({0.0, -1.0});
         Sf_.push_back(dx_);
     }
+    
     // top patch
-    patches_.push_back({std::string("top"), int(faces_.size()), cellNumX});
+    patchNames_.push_back(std::string("top"));
+    patches_["top"] = {std::string("top"), int(faces_.size()), cellNumX};
     for (int i=0; i<cellNumX; i++)
     {
         owner_.push_back((cellNumY - 1) * cellNumX + i);
@@ -154,6 +171,32 @@ const std::vector<int>& orthoSquareMesh::owner() const
 const std::vector<int>& orthoSquareMesh::neighbor() const
 {
     return neighbor_;
+}
+
+
+const std::vector<std::string>& orthoSquareMesh::patchNames() const
+{
+    return patchNames_;
+}
+
+
+const orthoSquareMesh::Patch& orthoSquareMesh::patchInfo
+(
+    std::string name
+) const
+{
+    try
+    {
+        return patches_.at(name);
+    }
+    catch (const std::out_of_range& e)
+    {
+        std::cerr << 
+        "Not a patch name. (At orthoSquareMesh::patchInfo(std::string)): "
+        << e.what() << "\n";
+
+        std::abort();
+    }
 }
 
 

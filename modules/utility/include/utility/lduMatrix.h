@@ -17,8 +17,8 @@ losortStart :  0  0  1  2  3  5  7
 #include <utility>
 #include <algorithm>
 #include <numeric>
-#include "utility/scalarField.h"
-#include "utility/orthoSquareMesh.h"
+#include "scalarField.h"
+#include "orthoSquareMesh.h"
 
 class lduMatrix
 {
