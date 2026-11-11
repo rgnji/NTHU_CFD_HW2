@@ -53,6 +53,12 @@ private:
         // Cell of larger index in a pair
         std::vector<int> neighbor_;
 
+        // Cell centers
+        std::vector<coordinate> cellCenter_;
+
+        // Face centers
+        std::vector<coordinate> faceCenter_;
+
         // Patch name list
         std::vector<std::string> patchNames_;
 
@@ -64,8 +70,14 @@ private:
         // Arrange internal mesh information
         void build();
 
+        void buildFaces(int pointOwner, int pointNbr, coordinate p, double len);
+
+        void buildCellCenter(int ownerPoint, int nbrPointX, int nbrPointY);
+
+        void buildFaceCenter(int ownerPoint, int nbrPoint);
+
         // Arrange patch information
-        void buildPatch(); 
+        void buildPatch();
 
 
 public:
@@ -101,6 +113,12 @@ public:
 
         // Return total cells
         int nCells() const;
+
+        // Return cell centers
+        const std::vector<coordinate>& cellCenter() const;
+
+        // Return face centers
+        const std::vector<coordinate>& faceCenter() const;
 };
 
 

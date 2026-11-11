@@ -14,24 +14,30 @@ class volField
 {
     // Private data
 
-        struct Patch
-        {
-            std::string name_;
-            patchField patch_;
-            
-        }
-
         // Field name
         std::string name_;
 
-        // Patch fields
-        std::map<std::string, Patch> volPatch_;
+        // Patch field list
+        std::vector<patchField<Type>> pFieldList_;
+
+    // Private Member List
+
+        // Build patch field list
+        void buildPField();
+
+
 public:
 
     // Constructor
 
         // Construct from mesh
         volField(const orthoSquareMesh& mesh);
+
+
+    // Member Functions
+
+        // Set initial internal field
+        void setInternal();
 };
 
 

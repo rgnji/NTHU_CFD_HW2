@@ -1,7 +1,9 @@
 add_library(utility STATIC
     src/lduMatrix.cpp
-    src/nodeScalarField.cpp
-    src/scalarField.cpp
+    src/orthoSquareMesh.cpp
+    src/Field.cpp
+    src/volField.cpp
+    src/patchField.cpp
 )
 
 target_include_directories(utility PUBLIC

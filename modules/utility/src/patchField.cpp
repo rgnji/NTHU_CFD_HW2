@@ -4,12 +4,23 @@
 // * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
 
 template<class Type>
-patchField<Type>::patchField(const orthoSquareMesh& mesh, std::string name)
+patchField<Type>::patchField
+(
+    const orthoSquareMesh& mesh, 
+    const std::vector<Type>& internal,
+    std::string name
+)
 :
     Field<Type>(mesh),
-    name_(name),
-    startFace_(mesh.patchInfo(name).startFace),
-    nFaces_(mesh.patchInfo(name).nFaces)
+    patch<Type>(mesh, internal, name)
+{}
+
+
+// * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
+
+template<class Type>
+const Type patchField<Type>::patchInternalField(int faceIndex) const
 {
-    this->resize(nFaces_);
+    int owner = this->mesh_.owner().at(faceIndex);
+    return this->internal_.at(owner);
 }

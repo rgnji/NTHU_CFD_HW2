@@ -49,13 +49,15 @@ void orthoSquareMesh::build()
                 owner_.push_back(owner);
                 neighbor_.push_back(owner + 1);
 
-                int pointOwner = j * Nx_ + (i + 1);
-                int pointNeighbor = (j + 1) * Nx_ + (i + 1);
-                std::vector<int> face{pointOwner, pointNeighbor};
+                buildFaces
+                (
+                    j * Nx_ + (i + 1),
+                    (j + 1) * Nx_ + (i + 1),
+                    {1.0, 0.0},
+                    dy_
+                );
 
-                faces_.push_back(face);
-                Nf_.push_back({1.0, 0.0});
-                Sf_.push_back(dy_);
+                buildFaceCenter(owner+1, owner+1+Nx_);
             }
 
             // N
@@ -64,14 +66,19 @@ void orthoSquareMesh::build()
                 owner_.push_back(owner);
                 neighbor_.push_back(owner + cellNumX);
 
-                int pointOwner = (j + 1) * Nx_ + i;
-                int pointNeighbor = (j + 1) * Nx_ + (i + 1);
-                std::vector<int> face{pointOwner, pointNeighbor};
+                buildFaces
+                (
+                    (j + 1) * Nx_ + i,
+                    (j + 1) * Nx_ + (i + 1),
+                    {0.0, 1.0},
+                    dx_
+                );
 
-                faces_.push_back(face);
-                Nf_.push_back({0.0, 1.0});
-                Sf_.push_back(dx_);
+                buildFaceCenter(owner+Nx_, owner+Nx_+1);
             }
+
+            // owner index = point index at bottom left of the cell
+            buildCellCenter(owner, owner+1, owner+Nx_);
         }
     }
 
@@ -87,58 +94,121 @@ void orthoSquareMesh::buildPatch()
     // left patch
     patchNames_.push_back(std::string("left"));
     patches_["left"] = {std::string("left"), int(faces_.size()), cellNumY};
+
     for (int j=0; j<cellNumY; j++)
     {
         owner_.push_back(j * cellNumX);
-        int pointOwner = j * Nx_;
-        int pointNeighbor = (j + 1) * Nx_;
-        std::vector<int> face{pointOwner, pointNeighbor};
-        faces_.push_back(face);
-        Nf_.push_back({-1.0, 0.0});
-        Sf_.push_back(dy_);
+
+        buildFaces
+        (
+            j * Nx_,
+            (j + 1) * Nx_,
+            {-1.0, 0.0},
+            dy_
+        );
+
+        buildFaceCenter(j * cellNumX, j * cellNumX + Nx_);
     }
 
     // right patch
     patchNames_.push_back(std::string("right"));
     patches_["right"] = {std::string("right"), int(faces_.size()), cellNumY};
+
     for (int j=0; j<cellNumY; j++)
     {
         owner_.push_back((j + 1) * cellNumX - 1);
-        int pointOwner = (j + 1) * Nx_ - 1;
-        int pointNeighbor = (j + 2) * Nx_ - 1;
-        std::vector<int> face{pointOwner, pointNeighbor};
-        faces_.push_back(face);
-        Nf_.push_back({1.0, 0.0});
-        Sf_.push_back(dy_);
+
+        buildFaces
+        (
+            (j + 1) * Nx_ - 1,
+            (j + 2) * Nx_ - 1,
+            {1.0, 0.0},
+            dy_
+        );
+
+        buildFaceCenter((j + 1) * cellNumX, (j + 1) * cellNumX + Nx_);
     }
 
     // bottom patch
     patchNames_.push_back(std::string("bottom"));
     patches_["bottom"] = {std::string("bottom"), int(faces_.size()), cellNumX};
+
     for (int i=0; i<cellNumX; i++)
     {
         owner_.push_back(i);
-        int pointOwner = i;
-        int pointNeighbor = i + 1;
-        std::vector<int> face{pointOwner, pointNeighbor};
-        faces_.push_back(face);
-        Nf_.push_back({0.0, -1.0});
-        Sf_.push_back(dx_);
+
+        buildFaces
+        (
+            i,
+            i + 1,
+            {0.0, -1.0},
+            dx_
+        );
+
+        buildFaceCenter(i, i+1);
     }
     
     // top patch
     patchNames_.push_back(std::string("top"));
     patches_["top"] = {std::string("top"), int(faces_.size()), cellNumX};
+
     for (int i=0; i<cellNumX; i++)
     {
         owner_.push_back((cellNumY - 1) * cellNumX + i);
-        int pointOwner = (Ny_ - 1) * Nx_ + i;
-        int pointNeighbor = (Ny_ - 1) * Nx_ + i + 1;
-        std::vector<int> face{pointOwner, pointNeighbor};
-        faces_.push_back(face);
-        Nf_.push_back({0.0, 1.0});
-        Sf_.push_back(dx_);
+
+        buildFaces
+        (
+            (Ny_ - 1) * Nx_ + i,
+            (Ny_ - 1) * Nx_ + i + 1,
+            {0.0, 1.0},
+            dx_
+        );
+
+        buildFaceCenter
+        (
+            (cellNumY - 1) * cellNumX + i + Nx_,
+            (cellNumY - 1) * cellNumX + i + Nx_ + 1
+        );
     }
+}
+
+
+void orthoSquareMesh::buildFaces
+(
+    int pointOwner,
+    int pointNbr,
+    orthoSquareMesh::coordinate p,
+    double len
+)
+{
+    std::vector<int> face{pointOwner, pointNbr};
+    faces_.push_back(face);
+    Nf_.push_back(p);
+    Sf_.push_back(len);
+}
+
+
+void orthoSquareMesh::buildCellCenter(int ownerPoint, int nbrPointX, int nbrPointY)
+{
+    cellCenter_.push_back
+    (
+        {
+            0.5*(points_[ownerPoint].x + points_[nbrPointX].x),
+            0.5*(points_[ownerPoint].y + points_[nbrPointY].y)
+        }
+    );
+}
+
+
+void orthoSquareMesh::buildFaceCenter(int ownerPoint, int nbrPoint)
+{
+    faceCenter_.push_back
+    (
+        {
+            0.5*(points_[ownerPoint].x + points_[nbrPoint].x),
+            0.5*(points_[ownerPoint].y + points_[nbrPoint].y)
+        }
+    );
 }
 
 
@@ -203,4 +273,18 @@ const orthoSquareMesh::Patch& orthoSquareMesh::patchInfo
 int orthoSquareMesh::nCells() const
 {
     return nCells_;
+}
+
+
+const std::vector<orthoSquareMesh::coordinate>& 
+orthoSquareMesh::cellCenter() const
+{
+    return cellCenter_;
+}
+
+
+const std::vector<orthoSquareMesh::coordinate>&
+orthoSquareMesh::faceCenter() const
+{
+    return faceCenter_;
 }
