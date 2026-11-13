@@ -1,31 +1,16 @@
 #ifndef orthoSquareMesh_H
 #define orthoSquareMesh_H
 
+#include "utility/Vector.h"
+#include "utility/Patch.h"
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
+
 
 class orthoSquareMesh
 {
-public:
-
-    // Coordinates of points
-    struct coordinate
-    {
-        double x,y;
-    };
-
-    // Patch information container
-    struct Patch
-    {
-        std::string name;
-        int startFace;
-        int nFaces;
-    };
-
-   
-private:
-
     // Private data
 
         // Mesh sizes (include boundary)
@@ -36,13 +21,13 @@ private:
         int nCells_;
 
         // Points
-        std::vector<coordinate> points_;
+        std::vector<Vector> points_;
 
         // Faces(2 points form a face in 2D meshes)
         std::vector<std::vector<int>> faces_;
 
         // Face normal
-        std::vector<coordinate> Nf_;
+        std::vector<Vector> Nf_;
 
         // Face size
         std::vector<double> Sf_;
@@ -54,23 +39,20 @@ private:
         std::vector<int> neighbor_;
 
         // Cell centers
-        std::vector<coordinate> cellCenter_;
+        std::vector<Vector> cellCenter_;
 
         // Face centers
-        std::vector<coordinate> faceCenter_;
-
-        // Patch name list
-        std::vector<std::string> patchNames_;
+        std::vector<Vector> faceCenter_;
 
         // Patch information
-        std::map<std::string, Patch> patches_;
+        std::map<std::string, std::unique_ptr<Patch>> patches_;
 
     // Private Member Functions
 
         // Arrange internal mesh information
         void build();
 
-        void buildFaces(int pointOwner, int pointNbr, coordinate p, double len);
+        void buildFaces(int pointOwner, int pointNbr, Vector p, double len);
 
         void buildCellCenter(int ownerPoint, int nbrPointX, int nbrPointY);
 
@@ -94,7 +76,7 @@ public:
         const std::vector<std::vector<int>>& faces() const;
 
         // Return reference of Nf
-        const std::vector<coordinate>& Nf() const;
+        const std::vector<Vector>& Nf() const;
 
         // Return reference of Sf
         const std::vector<double>& Sf() const;
@@ -105,20 +87,17 @@ public:
         // Return reference of neighbor
         const std::vector<int>& neighbor() const;
 
-        // Return reference of patch information
-        const std::vector<std::string>& patchNames() const;
-
         // Return specific patch information
-        const Patch& patchInfo(std::string name) const;
+        const std::unique_ptr<Patch>& patches(std::string name) const;
 
         // Return total cells
         int nCells() const;
 
         // Return cell centers
-        const std::vector<coordinate>& cellCenter() const;
+        const std::vector<Vector>& cellCenter() const;
 
         // Return face centers
-        const std::vector<coordinate>& faceCenter() const;
+        const std::vector<Vector>& faceCenter() const;
 };
 
 

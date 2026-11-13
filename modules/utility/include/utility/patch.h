@@ -1,16 +1,19 @@
-#ifndef patch_H
-#define patch_H
+#ifndef Patch_H
+#define Patch_H
 
 #include "utility/orthoSquareMesh.h"
+#include "utility/Vector.h"
 #include <string>
 #include <vector>
 #include <span>
 
 
-template<class Type>
-class patch
+class Patch
 {
     // Private data
+
+        // Reference to mesh
+        orthoSquareMesh& mesh_;
 
         // Patch name
         std::string name_;
@@ -20,12 +23,6 @@ class patch
 
         // face number
         int nFaces_;
-
-        // Reference to internal field
-        std::vector<Type> internal_;
-
-        // Owner slice correspond to the patch
-        std::span<int> owner_;
 
         // Reciprocal of distance between cell and face center
         std::vector<double> deltaCoeff_;
@@ -40,11 +37,12 @@ public:
 
     // Constructor
 
-        patch
+        Patch
         (
             const orthoSquareMesh& mesh,
-            const std::vector<Type>& internal,
-            std::string name
+            const std::string name,
+            const int startFace,
+            const int nFaces
         );
 
     // Member Functions

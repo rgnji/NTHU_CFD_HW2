@@ -1,22 +1,21 @@
-#include "utility/patch.h"
+#include "utility/Patch.h"
 #include <cmath>
 
 
 // * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
 
-template<class Type>
-patch<Type>::patch
+Patch::Patch
 (
     const orthoSquareMesh& mesh,
-    const std::vector<Type>& internal,
-    std::string name
+    const std::string name,
+    const int startFace,
+    const int nFaces
 )
 :
+    mesh_(mesh),
     name_(name),
-    startFace_(mesh.patchInfo(name).startFace),
-    nFaces_(mesh.patchInfo(name).nFaces),
-    internal_(internal),
-    owner_(std::span<int>(mesh.owner().data() + startFace_, nFaces_)),
+    startFace_(startFace),
+    nFaces_(nFaces),
     deltaCoeff_(nFaces_)
 {
     buildDeltaCoeff(mesh);
@@ -25,12 +24,11 @@ patch<Type>::patch
 
 // * * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * //
 
-template<class Type>
-void patch<Type>::buildDeltaCoeff(const orthoSquareMesh& mesh)
+void Patch::buildDeltaCoeff(const orthoSquareMesh& mesh)
 {
-    const std::vector<orthoSquareMesh::coordinate>& 
+    const std::vector<Vector>& 
         cellCenter = mesh.cellCenter();
-    const std::vector<orthoSquareMesh::coordinate>& 
+    const std::vector<Vector>& 
         faceCenter = mesh.faceCenter();
     
     for (int k=0; k<nFaces_; k++)
@@ -48,15 +46,16 @@ void patch<Type>::buildDeltaCoeff(const orthoSquareMesh& mesh)
 
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
-template<class Type>
-const std::span<const int> patch<Type>::faceCells() const
+const std::span<const int> Patch::faceCells() const
 {
-    return owner_;
+    const std::vector<int>& owner = mesh_.owner();
+
+    return std::span<const int>(owner.data() + startFace_, nFaces_);
 }
 
 
 template<class Type>
-const std::vector<double>& patch<Type>::deltaCoeff() const
+const std::vector<double>& Patch<Type>::deltaCoeff() const
 {
     return deltaCoeff_;
 }

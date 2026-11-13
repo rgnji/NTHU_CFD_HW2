@@ -7,8 +7,6 @@
 template<class Type>
 class Field
 {
-    const orthoSquareMesh mesh_;
-
     // Element number
     int N_;
 
@@ -21,10 +19,7 @@ public:
     // Constructor
 
         // Construct from element number
-        Field(const orthoSquareMesh& mesh, int N);
-
-        // Construct without field size
-        Field(const orthoSquareMesh& mesh);
+        Field(int N);
 
 
     // Member functions

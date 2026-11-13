@@ -2,18 +2,10 @@
 
 
 template<class Type>
-Field<Type>::Field(const orthoSquareMesh& mesh, int N)
+Field<Type>::Field(int N)
 :
-    mesh_(mesh),
     N_(N),
     field_(N)
-{}
-
-
-template<class Type>
-Field<Type>::Field(const orthoSquareMesh& mesh)
-:
-    mesh_(mesh)
 {}
 
 

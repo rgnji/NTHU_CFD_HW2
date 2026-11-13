@@ -92,8 +92,8 @@ void orthoSquareMesh::buildPatch()
     int cellNumY = Ny_ - 1;
 
     // left patch
-    patchNames_.push_back(std::string("left"));
-    patches_["left"] = {std::string("left"), int(faces_.size()), cellNumY};
+    patches_["left"] = std::make_unique<Patch>
+        (*this, "left", int(faces_.size()), cellNumY);
 
     for (int j=0; j<cellNumY; j++)
     {
@@ -111,8 +111,8 @@ void orthoSquareMesh::buildPatch()
     }
 
     // right patch
-    patchNames_.push_back(std::string("right"));
-    patches_["right"] = {std::string("right"), int(faces_.size()), cellNumY};
+    patches_["right"] = std::make_unique<Patch>
+        (*this, std::string("right"), int(faces_.size()), cellNumY);
 
     for (int j=0; j<cellNumY; j++)
     {
@@ -130,8 +130,8 @@ void orthoSquareMesh::buildPatch()
     }
 
     // bottom patch
-    patchNames_.push_back(std::string("bottom"));
-    patches_["bottom"] = {std::string("bottom"), int(faces_.size()), cellNumX};
+    patches_["bottom"] = std::make_unique<Patch>
+        (*this, std::string("bottom"), int(faces_.size()), cellNumX);
 
     for (int i=0; i<cellNumX; i++)
     {
@@ -149,8 +149,8 @@ void orthoSquareMesh::buildPatch()
     }
     
     // top patch
-    patchNames_.push_back(std::string("top"));
-    patches_["top"] = {std::string("top"), int(faces_.size()), cellNumX};
+    patches_["top"] = std::make_unique<Patch>
+        (*this, std::string("top"), int(faces_.size()), cellNumX);
 
     for (int i=0; i<cellNumX; i++)
     {
@@ -177,7 +177,7 @@ void orthoSquareMesh::buildFaces
 (
     int pointOwner,
     int pointNbr,
-    orthoSquareMesh::coordinate p,
+    Vector p,
     double len
 )
 {
@@ -220,7 +220,7 @@ const std::vector<std::vector<int>>& orthoSquareMesh::faces() const
 }
 
 
-const std::vector<orthoSquareMesh::coordinate>& orthoSquareMesh::Nf() const
+const std::vector<Vector>& orthoSquareMesh::Nf() const
 {
     return Nf_;
 }
@@ -244,13 +244,7 @@ const std::vector<int>& orthoSquareMesh::neighbor() const
 }
 
 
-const std::vector<std::string>& orthoSquareMesh::patchNames() const
-{
-    return patchNames_;
-}
-
-
-const orthoSquareMesh::Patch& orthoSquareMesh::patchInfo
+const std::unique_ptr<Patch>& orthoSquareMesh::patches
 (
     std::string name
 ) const
@@ -276,14 +270,14 @@ int orthoSquareMesh::nCells() const
 }
 
 
-const std::vector<orthoSquareMesh::coordinate>& 
+const std::vector<Vector>& 
 orthoSquareMesh::cellCenter() const
 {
     return cellCenter_;
 }
 
 
-const std::vector<orthoSquareMesh::coordinate>&
+const std::vector<Vector>&
 orthoSquareMesh::faceCenter() const
 {
     return faceCenter_;
