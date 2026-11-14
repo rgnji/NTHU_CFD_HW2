@@ -13,7 +13,7 @@ class Patch
     // Private data
 
         // Reference to mesh
-        orthoSquareMesh& mesh_;
+        const orthoSquareMesh& mesh_;
 
         // Patch name
         std::string name_;
@@ -37,6 +37,7 @@ public:
 
     // Constructor
 
+        // Construct from components
         Patch
         (
             const orthoSquareMesh& mesh,
@@ -44,6 +45,7 @@ public:
             const int startFace,
             const int nFaces
         );
+
 
     // Member Functions
 

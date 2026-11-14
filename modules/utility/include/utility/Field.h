@@ -2,7 +2,7 @@
 #define Field_H
 
 #include <vector>
-#include "utility/orthoSquareMesh.h"
+
 
 template<class Type>
 class Field
@@ -21,6 +21,9 @@ public:
         // Construct from element number
         Field(int N);
 
+        // Construct from field
+        Field(const std::vector<Type>& field);
+
 
     // Member functions
 
@@ -36,6 +39,9 @@ public:
         // Determine field size
         void resize(int size);
 };
+
+
+#include "utility/Field.tpp"
 
 
 #endif

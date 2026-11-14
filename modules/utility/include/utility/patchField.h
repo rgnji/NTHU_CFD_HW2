@@ -2,12 +2,18 @@
 #define PatchField_H
 
 #include "utility/Field.h"
-#include "utility/Patch.h"
-#include "utility/volField.h"
 #include <map>
 #include <string>
 #include <span>
 #include <memory>
+
+
+class Patch;
+
+template<class Type>
+class volField;
+
+class Dictionary;
 
 
 template<class Type>
@@ -18,23 +24,13 @@ class PatchField
     // Private data
 
         // Reference to volField
-        volField<Type>& vol_;
+        const volField<Type>& vol_;
 
         // Geometric information of patch
-        Patch& patch_;
-
-        // phi_b = alpha_ * phi_P + beta_
-        double alpha_;
-        double beta_;
-
-        // Face normal gradient = gamma_ * phi_P + delta
-        double gamma_;
-        double delta_;
+        const std::unique_ptr<Patch>& patch_;
 
 
 public:
-
-    using SubDict = std::map<std::string, std::string>;
 
     // Constructor
 
@@ -43,29 +39,24 @@ public:
         (
             const volField<Type>& vol,
             const Patch& patch,
-            const SubDict& dict
+            const Dictionary dict
         );
 
-
-    // Member Functions
-
-        // Return cell value next to the boundary face
-        const Type patchInternalField(int faceIndex) const;
-        
-        // Update boundary value
-        void evaluate() = 0;
-
-        // Return boundary face normal gradient
-        double snGrad() const = 0;
+        // Copy constructor
+        PatchField
+        (
+            const PatchField& oldField,
+            const volField<Type>& internal
+        );
 
 
     // Runtime Selection
 
         using tableType = std::unique_ptr<PatchField> (*) 
         (
-            const orthoSquareMesh& mesh, 
-            const std::vector<Type>& internal, 
-            const std::string name
+            const volField<Type>& vol,
+            const Patch& patch,
+            const Dictionary dict
         );
 
         // Define table
@@ -78,9 +69,9 @@ public:
         // Selector
         static std::unique_ptr<PatchField> New
         (
-            const orthoSquareMesh& mesh,
-            const std::vector<Type>& internal,
-            const std::string name
+            const volField<Type>& vol,
+            const Patch& patch,
+            const Dictionary dict
         );
 
         // Registration
@@ -91,16 +82,50 @@ public:
             {
                 table()[type] = []
                 (
-                    const orthoSquareMesh& mesh, 
-                    const std::vector<Type>& internal, 
-                    const std::string name
+                    const volField<Type>& vol,
+                    const Patch& patch,
+                    const Dictionary dict
                 ) -> std::unique_ptr<PatchField>
                 {
-                    return std::make_unique<Derived>(mesh, internal, name);
+                    return std::make_unique<Derived>(vol, patch, dict);
                 }
             }
-        }
+        };
+
+
+    // Member Functions
+
+        // Copy the object
+        virtual std::unique_ptr<PatchField> clone
+        (
+            const volField<Type>& newField
+        ) const = 0;
+
+        // Return cell value next to the boundary face
+        const Type patchInternalField(int faceIndex) const;
+        
+        // Update boundary value
+        virtual void evaluate() = 0;
+
+        // Return boundary face normal gradient
+        virtual double snGrad() const = 0;
+
+        // alpha
+        virtual const double& valueInternalCoeffs() const = 0;
+        
+        // beta
+        virtual const double& valueBoundaryCoeffs() const = 0;
+
+        // gamma
+        virtual const double& gradientInternalCoeffs(int) const = 0;
+
+        // delta
+        virtual const double& gradientBoundaryCoeffs(int) const = 0;
+        
 };
+
+
+#include "utility/PatchField.tpp"
 
 
 #endif

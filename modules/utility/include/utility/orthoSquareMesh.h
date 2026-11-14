@@ -2,11 +2,15 @@
 #define orthoSquareMesh_H
 
 #include "utility/Vector.h"
-#include "utility/Patch.h"
 #include <vector>
 #include <string>
 #include <map>
 #include <memory>
+
+
+class Dictionary;
+
+class Patch;
 
 
 class orthoSquareMesh
@@ -68,6 +72,12 @@ public:
 
         // Construct from element number and mesh sizes
         orthoSquareMesh(int Nx, int Ny, double dx, double dy);
+
+        // Construct from dictionary
+        orthoSquareMesh(const Dictionary& dict);
+
+        // Disallow bitwise copy
+        orthoSquareMesh(const orthoSquareMesh&) = delete;
 
 
     // Member functions

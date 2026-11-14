@@ -1,4 +1,6 @@
 #include "utility/orthoSquareMesh.h"
+#include "utility/Patch.h"
+#include "utility/Dictionary.h"
 #include <algorithm>
 #include <iterator>
 #include <iostream>

@@ -1,6 +1,8 @@
 #include "utility/Field.h"
 
 
+// * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
+
 template<class Type>
 Field<Type>::Field(int N)
 :
@@ -8,6 +10,16 @@ Field<Type>::Field(int N)
     field_(N)
 {}
 
+
+template<class Type>
+Field<Type>::Field(const std::vector<Type>& field)
+:
+    N_(field.size()),
+    field_(field)
+{}
+
+
+// * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
 template<class Type>
 int Field<Type>::total() const

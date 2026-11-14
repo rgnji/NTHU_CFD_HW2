@@ -54,8 +54,7 @@ const std::span<const int> Patch::faceCells() const
 }
 
 
-template<class Type>
-const std::vector<double>& Patch<Type>::deltaCoeff() const
+const std::vector<double>& Patch::deltaCoeff() const
 {
     return deltaCoeff_;
 }

@@ -2,9 +2,17 @@
 #define volField_H
 
 #include "utility/Field.h"
-#include "utility/patchField.h"
 #include <string>
 #include <map>
+#include <memory>
+
+
+class Dictionary;
+
+class orthoSquareMesh;
+
+template<class Type>
+class PatchField;
 
 
 template<class Type>
@@ -17,8 +25,11 @@ class volField
         // Field name
         std::string name_;
 
+        // Reference to mesh
+        orthoSquareMesh& mesh_;
+
         // Patch field list
-        std::vector<patchField<Type>> pFieldList_;
+        std::map<std::string, std::unique_ptr<PatchField<Type>>> boundary_;
 
     // Private Member List
 
@@ -31,14 +42,22 @@ public:
     // Constructor
 
         // Construct from mesh
-        volField(const orthoSquareMesh& mesh);
+        volField
+        (
+            const std::string& name,
+            const orthoSquareMesh& mesh, 
+            const Dictionary& dict
+        );
 
 
     // Member Functions
 
-        // Set initial internal field
-        void setInternal();
+        // Return mesh reference
+        const orthoSquareMesh& mesh() const;
 };
+
+
+#include "utility/volField.tpp"
 
 
 #endif
