@@ -54,6 +54,9 @@ public:
 
         // Return mesh reference
         const orthoSquareMesh& mesh() const;
+
+        // Output flowfield
+        void write(std::string path) const;
 };
 
 

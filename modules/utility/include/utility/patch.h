@@ -48,12 +48,15 @@ public:
 
 
     // Member Functions
+        
+        // Return mesh
+        const orthoSquareMesh& mesh() const;
 
         // Access internal cells next to the boundary
         const std::span<const int> faceCells() const;
 
         // Return reciprocal of distance from cell center to face center
-        const std::vector<double>& deltaCoeff() const;
+        const std::vector<double>& deltaCoeffs() const;
 };
 
 

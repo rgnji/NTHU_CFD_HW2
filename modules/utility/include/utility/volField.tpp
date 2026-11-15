@@ -2,6 +2,8 @@
 #include "utility/orthoSquareMesh.h"
 #include "utility/Dictionary.h"
 #include "utility/PatchField.h"
+#include <fstream>
+#include <format>
 
 
 // * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
@@ -34,4 +36,19 @@ template<class Type>
 const orthoSquareMesh& volField<Type>::mesh() const
 {
     return mesh_;
+}
+
+
+template<class Type>
+void volField<Type>::write(std::string path) const
+{
+    std::ofstream file(path);
+    
+    // Store the field as 1D arrary
+    for (int k=0; k<mesh_.nCells()-1; k++)
+    {
+        file << std::format("{:.6f}", get(k)) << ",";
+    }
+    file << std::format("{:.6f}", get(mesh_.nCells()-1));
+    file.close();
 }

@@ -34,7 +34,7 @@ public:
 
     // Constructor
 
-        // Construct from mesh with patch name
+        // Construct from dictionary
         PatchField
         (
             const volField<Type>& vol,
@@ -102,30 +102,46 @@ public:
         ) const = 0;
 
         // Return cell value next to the boundary face
-        const Type patchInternalField(int faceIndex) const;
+        Field<Type> patchInternalField() const;
         
         // Update boundary value
-        virtual void evaluate() = 0;
+        virtual void evaluate() {};
 
         // Return boundary face normal gradient
-        virtual double snGrad() const = 0;
+        virtual Field<Type> snGrad() const;
 
         // alpha
-        virtual const double& valueInternalCoeffs() const = 0;
+        virtual Field<Type> valueInternalCoeffs() const = 0;
         
         // beta
-        virtual const double& valueBoundaryCoeffs() const = 0;
+        virtual Field<Type> valueBoundaryCoeffs() const = 0;
 
         // gamma
-        virtual const double& gradientInternalCoeffs(int) const = 0;
+        virtual Field<Type> gradientInternalCoeffs() const = 0;
 
         // delta
-        virtual const double& gradientBoundaryCoeffs(int) const = 0;
+        virtual Field<Type> gradientBoundaryCoeffs() const = 0;
+
+        // Return volField
+        const volField<Type>& vol() const;
+
+        // Return patch
+        const Patch& patch() const;
         
 };
 
 
 #include "utility/PatchField.tpp"
+
+
+#define makePatchFields(Name)                      \
+    namespace                                      \
+    {                                              \
+        PatchField<double>::Register<Name<double>> \
+            add##Name##ScalarPatchField(#Name);    \
+        PatchField<Vector>::Register<Name<Vector>> \
+            add##Name##VectorPatchField(#Name);    \
+    }
 
 
 #endif

@@ -14,7 +14,7 @@ PatchField<Type>::PatchField
     const Dictionary dict
 )
 :
-    Field<Type>(),
+    Field<Type>(patch.faceCells().size()),
     vol_(vol),
     patch_(patch)
 {}
@@ -27,9 +27,10 @@ PatchField<Type>::PatchField
     const volField<Type>& internal
 )
 :
-    Field<Type>(oldField.field_),
+    Field<Type>(oldField.field()),
     vol_(internal),
     patch_(oldField.patch_)
+{}
 
 
 // * * * * * * * * * * * * * * * *  Selector * * * * * * * * * * * * * * * * //
@@ -42,7 +43,7 @@ std::unique_ptr<PatchField<Type>> PatchField<Type>::New
     const Dictionary dict
 )
 {
-    auto it = table().find(name);
+    auto it = table().find(dict.get<std::string>("type"));
 
     if (it == table().end())
         throw std::runtime_error("Unknown PatchField type: " + name);
@@ -54,10 +55,51 @@ std::unique_ptr<PatchField<Type>> PatchField<Type>::New
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
 template<class Type>
-const Type PatchField<Type>::patchInternalField(int faceIndex) const
+Field<Type> PatchField<Type>::patchInternalField() const
 {
-    const int owner = vol_.mesh().owner(faceIndex);
-    return vol_.get(owner);
+    Field<Type> field(this->size());
+    auto& owner = patch_.get()->faceCells();
+
+    for 
+    (int k=0; k<owner.size(); k++)
+    {
+        field.set(k, vol_.get(owner[k]));
+    }
+
+    return field;
 }
 
 
+template<class Type>
+Field<Type> PatchField<Type>::snGrad() const
+{
+    Field<Type> field(this->size());
+    auto& deltaCoeffs = this->patch().deltaCoeffs();
+    auto& faceCells = patch_.get()->faceCells();
+
+    for (int k=0; k<this->size(); k++)
+    {
+
+        field.set
+        (
+            k, 
+            deltaCoeffs[k] * (this->get(k) - this->vol().get(faceCells[k]))
+        );
+    }
+
+    return field;
+}
+
+
+template<class Type>
+const volField<Type>& PatchField<Type>::vol() const
+{
+    return vol_;
+}
+
+
+template<class Type>
+const Patch& PatchField<Type>::patch() const
+{
+    return patch_.get();
+}

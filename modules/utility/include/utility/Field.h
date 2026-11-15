@@ -1,6 +1,7 @@
 #ifndef Field_H
 #define Field_H
 
+#include "utility/pTraits.h"
 #include <vector>
 
 
@@ -24,11 +25,14 @@ public:
         // Construct from field
         Field(const std::vector<Type>& field);
 
+        // Construct from size and initial value
+        Field(int size, pTraits<Type> value);
+
 
     // Member functions
 
         // Return total element number
-        int total() const;
+        int size() const;
 
         // Setter
         void set(int N, const Type value);
@@ -38,6 +42,9 @@ public:
 
         // Determine field size
         void resize(int size);
+
+        // Return the whole field
+        const std::vector<Type>& field() const;
 };
 
 

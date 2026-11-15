@@ -19,10 +19,18 @@ Field<Type>::Field(const std::vector<Type>& field)
 {}
 
 
+template<class Type>
+Field<Type>::Field(int size, pTraits<Type> value)
+:
+    N_(size),
+    field_(size, value)
+{}
+
+
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
 template<class Type>
-int Field<Type>::total() const
+int Field<Type>::size() const
 {
     return N_;
 }
@@ -47,4 +55,11 @@ void Field<Type>::resize(int size)
 {
     N_ = size;
     field_.resize(size);
+}
+
+
+template<class Type>
+const std::vector<Type>& Field<Type>::field() const
+{
+    return field_;
 }
