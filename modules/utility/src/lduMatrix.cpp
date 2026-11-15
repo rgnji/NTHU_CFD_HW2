@@ -1,21 +1,22 @@
 #include "utility/lduMatrix.h"
+#include "utility/orthoSquareMesh.h"
 #include <iostream>
 
 
 // * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
 
-lduMatrix::lduMatrix(const orthoSquareMesh& field)
+lduMatrix::lduMatrix(const orthoSquareMesh& mesh)
 :
-	nFaces_(field.faces().size()),
-	diag_(field.nCells(), 0.0),
+	nFaces_(mesh.faces().size()),
+	diag_(mesh.nCells(), 0.0),
 	lower_(nFaces_, 0.0),
 	upper_(nFaces_, 0.0),
-	b_(field.nCells(), 0.0),
-	lowerAddr_(field.owner()),
-	upperAddr_(field.neighbor()),
-	ownerStart_(field.nCells()+1, 0),
+	b_(mesh.nCells(), 0.0),
+	lowerAddr_(mesh.owner()),
+	upperAddr_(mesh.neighbor()),
+	ownerStart_(mesh.nCells()+1, 0),
 	losortAddr_(nFaces_, 0),
-	losortStart_(field.nCells()+1, 0)
+	losortStart_(mesh.nCells()+1, 0)
 {
 	buildLduAddressing();
 }
@@ -25,14 +26,6 @@ lduMatrix::lduMatrix(const orthoSquareMesh& field)
 
 void lduMatrix::buildLduAddressing()
 {
-	/*
-	// sort couplings according to owner index
-	std::sort(pairs.begin(), pairs.end());
-	// eliminate repeated pairs
-	pairs.erase(std::unique(pairs.begin(), pairs.end()),
-                    pairs.end());
-	*/
-
 	// Collect owners
 	for (int k : lowerAddr_)
 	{
@@ -66,7 +59,7 @@ void lduMatrix::buildLduAddressing()
 
 
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
-
+/*
 void lduMatrix::buildBoundaryAddressing
 (
 	const orthoSquareMesh& phi,
@@ -81,7 +74,7 @@ void lduMatrix::buildBoundaryAddressing
 		boundaryDirection_.push_back(boundaryPairs[k].directions);
 	}
 }
-
+*/
 
 void lduMatrix::buildDiag(int center, double coeff)
 {
@@ -159,7 +152,7 @@ const std::vector<int>& lduMatrix::losortStart() const
 	return losortStart_;
 }
 
-
+/*
 const std::vector<lduMatrix::direction>& lduMatrix::pairDirection() const
 {
 	return pairDirection_;
@@ -182,8 +175,8 @@ const std::vector<lduMatrix::direction>& lduMatrix::boundaryDirection() const
 {
 	return boundaryDirection_;
 }
-
-
+*/
+/*
 double lduMatrix::residualNorm(const orthoSquareMesh& phi) const
 {
     std::vector<double> r(diag_.size());
@@ -203,4 +196,4 @@ double lduMatrix::residualNorm(const orthoSquareMesh& phi) const
     double sum = 0.0;
     for (double v : r) sum += v * v;
     return std::sqrt(sum / r.size());
-}
+}*/

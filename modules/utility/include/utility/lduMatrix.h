@@ -13,12 +13,15 @@ losortStart :  0  0  1  2  3  5  7
 #ifndef lduMatrix_H
 #define lduMatrix_H
 
+#include "utility/Field.h"
 #include <vector>
 #include <utility>
 #include <algorithm>
 #include <numeric>
-#include "scalarField.h"
-#include "orthoSquareMesh.h"
+
+
+class orthoSquareMesh;
+
 
 class lduMatrix
 {
@@ -30,7 +33,7 @@ public:
     struct pairType
     {
         std::pair<int, int> couplings;
-        lduMatrix::direction directions;
+        direction directions;
 
         bool operator<(const pairType& other) const
         {
@@ -85,17 +88,17 @@ private:
             std::vector<int> losortStart_;
 
             // Record the direction of the internal pairs
-            std::vector<direction> pairDirection_;
+            //std::vector<direction> pairDirection_;
 
         // Boundary pairs
-
+            /*
             // Record the internal-boudary pairs
             std::vector<int> internalAddr_;
 
             std::vector<int> boundaryAddr_;
 
             std::vector<direction> boundaryDirection_;
-
+            */
     // Private Member Functions
 
         // Build the addressing from field
@@ -141,6 +144,7 @@ public:
         const std::vector<int>& losortStart() const;
 
         // Return pairDirection_
+        /*
         const std::vector<direction>& pairDirection() const;
 
         const std::vector<int>& internalAddr() const;
@@ -148,7 +152,7 @@ public:
         const std::vector<int>& boundaryAddr() const;
 
         const std::vector<direction>& boundaryDirection() const;
-
+        */
         // Calculate residual
         double residualNorm(const orthoSquareMesh& phi) const;
 };
