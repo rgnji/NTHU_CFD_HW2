@@ -40,7 +40,7 @@ std::unique_ptr<PatchField<Type>> PatchField<Type>::New
 (
     const volField<Type>& vol,
     const Patch& patch,
-    const Dictionary dict
+    const Dictionary& dict
 )
 {
     auto it = table().find(dict.get<std::string>("type"));
@@ -88,18 +88,4 @@ Field<Type> PatchField<Type>::snGrad() const
     }
 
     return field;
-}
-
-
-template<class Type>
-const volField<Type>& PatchField<Type>::vol() const
-{
-    return vol_;
-}
-
-
-template<class Type>
-const Patch& PatchField<Type>::patch() const
-{
-    return patch_.get();
 }

@@ -56,10 +56,3 @@ void Field<Type>::resize(int size)
     N_ = size;
     field_.resize(size);
 }
-
-
-template<class Type>
-const std::vector<Type>& Field<Type>::field() const
-{
-    return field_;
-}

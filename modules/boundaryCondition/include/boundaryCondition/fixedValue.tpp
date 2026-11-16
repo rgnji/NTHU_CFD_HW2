@@ -69,7 +69,7 @@ Field<Type> fixedValue<Type>::gradientInternalCoeffs() const
 
     for (int k=0; k<this->size(); k++)
     {
-        field.set(k, deltaCoeffs[k] * pTraits<Type>::one);
+        field.set(k, - deltaCoeffs[k] * pTraits<Type>::one);
     }
 
     return field;

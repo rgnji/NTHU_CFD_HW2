@@ -44,7 +44,16 @@ public:
         void resize(int size);
 
         // Return the whole field
-        const std::vector<Type>& field() const;
+        const std::vector<Type>& field() const
+        {
+            return field_;
+        }
+
+        // Allow editting
+        std::vector<Type>& fieldList()
+        {
+            return field_;
+        }
 };
 
 

@@ -47,19 +47,19 @@ public:
         virtual std::unique_ptr<fixedValue> clone
         (
             const volField<Type>& newField
-        ) const;
+        ) const override;
 
         // alpha
-        virtual Field<Type> valueInternalCoeffs() const;
+        virtual Field<Type> valueInternalCoeffs() const override;
 
         // beta
-        virtual Field<Type> valueBoundaryCoeffs() const;
+        virtual Field<Type> valueBoundaryCoeffs() const override;
 
         // gamma
-        virtual Field<Type> gradientInternalCoeffs() const;
+        virtual Field<Type> gradientInternalCoeffs() const override;
 
         // delta
-        virtual Field<Type> gradientBoundaryCoeffs() const;
+        virtual Field<Type> gradientBoundaryCoeffs() const override;
 };
 
 

@@ -1,28 +1,33 @@
 #ifndef upwind_H
 #define upwind_H
 
-#include "utility/lduMatrix.h"
-#include "utility/nodeScalarField.h"
+#include "convectionScheme/convectionScheme.h"
+#include "utility/surfaceField.h"
 
-namespace convectionScheme
+
+namespace convectionSchemeType
 {
 
+template<class Type>
 class upwind
+:
+    public convectionScheme<Type>
 {
 public:
 
     // Member functions
 
-        // Upwind scheme
-        void construct
+        // Weights
+        virtual surfaceField<double> weights
         (
-            lduMatrix& diffusion,
-            const nodeScalarField& X,
-            const nodeScalarField& Y,
-            const nodeScalarField& phi
-        );
+            const surfaceField<double>& phi
+        ) const override;
 };
 
-};
+}
+
+
+#include "convectionScheme/upwind.tpp"
+
 
 #endif

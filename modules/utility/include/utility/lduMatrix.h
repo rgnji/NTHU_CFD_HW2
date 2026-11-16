@@ -25,34 +25,6 @@ class orthoSquareMesh;
 
 class lduMatrix
 {
-public:
-
-    // Possible direction for structured grids
-    enum class direction {E,W,N,S};
-
-    struct pairType
-    {
-        std::pair<int, int> couplings;
-        direction directions;
-
-        bool operator<(const pairType& other) const
-        {
-            if (couplings.first != other.couplings.first)
-                return couplings.first < other.couplings.first;
-            return couplings.second < other.couplings.second;
-        }
-
-        bool operator==(const pairType& other) const
-        {
-            return 
-                couplings.first == other.couplings.first &&
-                couplings.second == other.couplings.second;
-        }
-    };
-
-
-private:
-
     // Private data
 
         // Number of internal faces
@@ -75,10 +47,10 @@ private:
         // Internal pairs
 
             // Lower triangle addressing
-            std::vector<int> lowerAddr_;
+            const std::vector<int>& lowerAddr_;
 
             // Upper triangle addressing
-            std::vector<int> upperAddr_;
+            const std::vector<int>& upperAddr_;
 
             // Row pointer in CSR format for lower triangle
             std::vector<int> ownerStart_;
@@ -87,18 +59,7 @@ private:
 
             std::vector<int> losortStart_;
 
-            // Record the direction of the internal pairs
-            //std::vector<direction> pairDirection_;
 
-        // Boundary pairs
-            /*
-            // Record the internal-boudary pairs
-            std::vector<int> internalAddr_;
-
-            std::vector<int> boundaryAddr_;
-
-            std::vector<direction> boundaryDirection_;
-            */
     // Private Member Functions
 
         // Build the addressing from field
@@ -110,51 +71,76 @@ public:
     // Constructor
 
         // Construct from field
-        lduMatrix(const orthoSquareMesh& field);
+        lduMatrix(const orthoSquareMesh& mesh);
 
 
     // Member functions
 
-        // Build addressing of internal-boudary pairs
-        void buildBoundaryAddressing
-        (
-            const orthoSquareMesh& phi,
-            std::vector<pairType>& boundaryPairs
-        );
-
         // Build LDU coefficients
-        void buildDiag(const int center, const double coeff);
-        void buildLower(const int f, const double coeff);
-        void buildUpper(const int f, const double coeff);
-        void buildB(const int f, const double coeff);
+        void buildDiag(int center, double coeff);
+        void buildLower(int f, double coeff);
+        void buildUpper(int f, double coeff);
+        void buildB(int center, double coeff);
 
         // Return coefficients
-        const std::vector<double>& diag() const;
-        const std::vector<double>& lower() const;
-        const std::vector<double>& upper() const;
-        const std::vector<double>& b() const;
+        const std::vector<double>& diag() const
+        {
+            return diag_;
+        }
+        const std::vector<double>& lower() const
+        {
+            return lower_;
+        }
+        const std::vector<double>& upper() const
+        {
+            return upper_;
+        }
+        const std::vector<double>& b() const
+        {
+            return b_;
+        }
 
         // Return addressing
-        const std::vector<int>& lowerAddr() const;
-        const std::vector<int>& upperAddr() const;
-        const std::vector<int>& losortAddr() const;
+        const std::vector<int>& lowerAddr() const
+        {
+            return lowerAddr_;
+        }
+        const std::vector<int>& upperAddr() const
+        {
+            return upperAddr_;
+        }
+        const std::vector<int>& losortAddr() const
+        {
+            return losortAddr_;
+        }
 
         // Return start
-        const std::vector<int>& ownerStart() const;
-        const std::vector<int>& losortStart() const;
+        const std::vector<int>& ownerStart() const
+        {
+            return ownerStart_;
+        }
+        const std::vector<int>& losortStart() const
+        {
+            return losortStart_;
+        }
 
-        // Return pairDirection_
-        /*
-        const std::vector<direction>& pairDirection() const;
-
-        const std::vector<int>& internalAddr() const;
-
-        const std::vector<int>& boundaryAddr() const;
-
-        const std::vector<direction>& boundaryDirection() const;
-        */
         // Calculate residual
-        double residualNorm(const orthoSquareMesh& phi) const;
+        std::vector<double> residual
+        (
+            const std::vector<double>& x,
+            const std::vector<double>& b
+        ) const;
+
+        double residualNorm
+        (
+            const std::vector<double>& x,
+            const std::vector<double>& b
+        ) const;
+
+        std::vector<double>& diagList()
+        {
+            return diag_;
+        }
 };
 
 

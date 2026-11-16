@@ -1,21 +1,21 @@
 #include "utility/lduMatrix.h"
 #include "utility/orthoSquareMesh.h"
 #include <iostream>
+#include <cmath>s
 
 
 // * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
 
 lduMatrix::lduMatrix(const orthoSquareMesh& mesh)
 :
-	nFaces_(mesh.faces().size()),
 	diag_(mesh.nCells(), 0.0),
-	lower_(nFaces_, 0.0),
-	upper_(nFaces_, 0.0),
+	lower_(mesh.nInternalFaces(), 0.0),
+	upper_(mesh.nInternalFaces(), 0.0),
 	b_(mesh.nCells(), 0.0),
 	lowerAddr_(mesh.owner()),
 	upperAddr_(mesh.neighbor()),
 	ownerStart_(mesh.nCells()+1, 0),
-	losortAddr_(nFaces_, 0),
+	losortAddr_(mesh.nInternalFaces(), 0),
 	losortStart_(mesh.nCells()+1, 0)
 {
 	buildLduAddressing();
@@ -59,22 +59,6 @@ void lduMatrix::buildLduAddressing()
 
 
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
-/*
-void lduMatrix::buildBoundaryAddressing
-(
-	const orthoSquareMesh& phi,
-	std::vector<pairType>& boundaryPairs
-)
-{
-	for (int k=0; k<boundaryPairs.size(); k++)
-	{
-		auto [inter, bound] = boundaryPairs[k].couplings;
-		internalAddr_.push_back(inter);
-		boundaryAddr_.push_back(bound);
-		boundaryDirection_.push_back(boundaryPairs[k].directions);
-	}
-}
-*/
 
 void lduMatrix::buildDiag(int center, double coeff)
 {
@@ -94,106 +78,48 @@ void lduMatrix::buildUpper(int f, double coeff)
 }
 
 
-void lduMatrix::buildB(int f, double coeff)
+void lduMatrix::buildB(int center, double coeff)
 {
-	b_[f] += coeff;
+	b_[center] += coeff;
 }
 
 
-const std::vector<double>& lduMatrix::diag() const
+std::vector<double> lduMatrix::residual
+(
+	const std::vector<double>& x,
+    const std::vector<double>& b
+) const
 {
-	return diag_;
-}
+	const auto& l = lowerAddr();
+    const auto& u = upperAddr();
+    const int nCells = static_cast<int>(x.size());
+    const int nPairs = static_cast<int>(l.size());
 
+    std::vector<double> r(nCells);
 
-const std::vector<double>& lduMatrix::lower() const
-{
-	return lower_;
-}
+	for (int P = 0; P < nCells; ++P)
+        r[P] = b[P] - diag_[P] * x[P];
 
-
-const std::vector<double>& lduMatrix::upper() const
-{
-	return upper_;
-}
-
-const std::vector<double>& lduMatrix::b() const
-{
-	return b_;
-}
-
-
-const std::vector<int>& lduMatrix::lowerAddr() const
-{
-	return lowerAddr_;
-}
-
-
-const std::vector<int>& lduMatrix::upperAddr() const
-{
-	return upperAddr_;
-}
-
-
-const std::vector<int>& lduMatrix::losortAddr() const
-{
-	return losortAddr_;
-}
-
-
-const std::vector<int>& lduMatrix::ownerStart() const
-{
-	return ownerStart_;
-}
-
-
-const std::vector<int>& lduMatrix::losortStart() const
-{
-	return losortStart_;
-}
-
-/*
-const std::vector<lduMatrix::direction>& lduMatrix::pairDirection() const
-{
-	return pairDirection_;
-}
-
-
-const std::vector<int>& lduMatrix::internalAddr() const
-{
-	return internalAddr_;
-}
-
-
-const std::vector<int>& lduMatrix::boundaryAddr() const
-{
-	return boundaryAddr_;
-}
-
-
-const std::vector<lduMatrix::direction>& lduMatrix::boundaryDirection() const
-{
-	return boundaryDirection_;
-}
-*/
-/*
-double lduMatrix::residualNorm(const orthoSquareMesh& phi) const
-{
-    std::vector<double> r(diag_.size());
-
-    // r_P = b_P - a_PP * x_P
-    for (int P = 0; P < (int)diag_.size(); P++)
-        r[P] = b_[P] - diag_[P] * phi.getValue(phi.globalIndex(P));
-
-    // 非對角項
-    for (int f = 0; f < (int)lowerAddr_.size(); f++)
+    for (int f = 0; f < nPairs; ++f)
     {
-        int l = lowerAddr_[f], u = upperAddr_[f];          // global
-        r[phi.internalConvert(l)] -= upper_[f] * phi.getValue(u);
-        r[phi.internalConvert(u)] -= lower_[f] * phi.getValue(l);
+        r[l[f]] -= upper_[f] * x[u[f]];
+        r[u[f]] -= lower_[f] * x[l[f]];
     }
 
-    double sum = 0.0;
-    for (double v : r) sum += v * v;
-    return std::sqrt(sum / r.size());
-}*/
+	return r;
+}
+
+
+double lduMatrix::residualNorm
+(
+	const std::vector<double>& x,
+    const std::vector<double>& b
+) const
+{
+	auto r = residual(x, b);
+
+	double sum = 0.0;
+	for (double v : r) sum += v * v;
+
+	return std::sqrt(sum / static_cast<double>(r.size()));
+}

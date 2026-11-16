@@ -1,34 +1,36 @@
 #ifndef secondCentralDiff_H
 #define secondCentralDiff_H
 
-#include "utility/lduMatrix.h"
-#include "utility/scalarField.h"
+#include "utility/fvMatrix.h"
+
+
+template<class Type>
+class volField;
+
+template<class Type>
+class surfaceField;
+
 
 namespace diffusionScheme
 {
 
 class secondCentralDiff
 {
-    // Ghost node flag
-    bool ghost_;
-
-
 public:
 
     // Constructor
 
         // Construct from order of accuracy
-        secondCentralDiff(bool ghost=true);
+        secondCentralDiff();
 
     
     // Member functions
 
-        // Second-order accuracy scheme
-        lduMatrix interpolate
+        template<class Type>
+        fvMatrix<Type> interpolate
         (
-            const orthoSquareMesh& phi,
-            const orthoSquareMesh& X,
-            const orthoSquareMesh& Y
+            const surfaceField<Type>& phi,
+            const volField<Type>& field
         );
 };
 

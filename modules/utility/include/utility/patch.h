@@ -48,15 +48,45 @@ public:
 
 
     // Member Functions
+
+        // Return name
+        const std::string& name() const
+        {
+            return name_;
+        }
         
         // Return mesh
-        const orthoSquareMesh& mesh() const;
+        const orthoSquareMesh& mesh() const
+        {
+            return mesh_;
+        }
 
+        // Return startFace and nFaces
+        const int& startFace() const
+        {
+            return startFace_;
+        }
+        const int& nFaces() const
+        {
+            return nFaces_;
+        }
+
+        // Return reciprocal of distance from cell center to face center
+        const std::vector<double>& deltaCoeffs() const
+        {
+            return deltaCoeff_;
+        }
+        
         // Access internal cells next to the boundary
         const std::span<const int> faceCells() const;
 
-        // Return reciprocal of distance from cell center to face center
-        const std::vector<double>& deltaCoeffs() const;
+        // Return internal cell index according to face index
+        const int faceCells(int f) const
+        {
+            return faceCells()[f];
+        }
+
+        
 };
 
 

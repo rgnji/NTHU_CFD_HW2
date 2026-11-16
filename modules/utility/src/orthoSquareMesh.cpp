@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
-#include <cstdlib>
+#include <cmath>
 
 // * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
 
@@ -18,6 +18,7 @@ orthoSquareMesh::orthoSquareMesh(int Nx, int Ny, double dx, double dy)
     points_(Nx_*Ny_)
 {
     build();
+    buildDeltaCoeffs();
 }
 
 
@@ -80,7 +81,7 @@ void orthoSquareMesh::build()
             }
 
             // owner index = point index at bottom left of the cell
-            buildCellCenter(owner, owner+1, owner+Nx_);
+            buildCell(owner, owner+1, owner+Nx_);
         }
     }
 
@@ -94,8 +95,10 @@ void orthoSquareMesh::buildPatch()
     int cellNumY = Ny_ - 1;
 
     // left patch
-    patches_["left"] = std::make_unique<Patch>
-        (*this, "left", int(faces_.size()), cellNumY);
+    patches_.push_back
+    (
+        Patch(*this, "left", int(faces_.size()), cellNumY)
+    );
 
     for (int j=0; j<cellNumY; j++)
     {
@@ -113,8 +116,10 @@ void orthoSquareMesh::buildPatch()
     }
 
     // right patch
-    patches_["right"] = std::make_unique<Patch>
-        (*this, std::string("right"), int(faces_.size()), cellNumY);
+    patches_.push_back
+    (
+        Patch(*this, "right", int(faces_.size()), cellNumY)
+    );
 
     for (int j=0; j<cellNumY; j++)
     {
@@ -132,8 +137,10 @@ void orthoSquareMesh::buildPatch()
     }
 
     // bottom patch
-    patches_["bottom"] = std::make_unique<Patch>
-        (*this, std::string("bottom"), int(faces_.size()), cellNumX);
+    patches_.push_back
+    (
+        Patch(*this, "bottom", int(faces_.size()), cellNumX)
+    );
 
     for (int i=0; i<cellNumX; i++)
     {
@@ -151,8 +158,10 @@ void orthoSquareMesh::buildPatch()
     }
     
     // top patch
-    patches_["top"] = std::make_unique<Patch>
-        (*this, std::string("top"), int(faces_.size()), cellNumX);
+    patches_.push_back
+    (
+        Patch(*this, "top", int(faces_.size()), cellNumX)
+    );
 
     for (int i=0; i<cellNumX; i++)
     {
@@ -177,34 +186,40 @@ void orthoSquareMesh::buildPatch()
 
 void orthoSquareMesh::buildFaces
 (
-    int pointOwner,
-    int pointNbr,
+    int ownerPoint,
+    int nbrPoint,
     Vector p,
     double len
 )
 {
-    std::vector<int> face{pointOwner, pointNbr};
+    std::vector<int> face{ownerPoint, nbrPoint};
     faces_.push_back(face);
-    Nf_.push_back(p);
-    Sf_.push_back(len);
+    Sf_.push_back(p);
+    magSf_.push_back(len);
 }
 
 
-void orthoSquareMesh::buildCellCenter(int ownerPoint, int nbrPointX, int nbrPointY)
+void orthoSquareMesh::buildCell(int ownerPoint, int nbrPointX, int nbrPointY)
 {
-    cellCenter_.push_back
+    C_.push_back
     (
         {
             0.5*(points_[ownerPoint].x + points_[nbrPointX].x),
             0.5*(points_[ownerPoint].y + points_[nbrPointY].y)
         }
     );
+
+    V_.push_back
+    (
+        std::abs(points_[ownerPoint].x - points_[nbrPointX].x)
+      * std::abs(points_[ownerPoint].y - points_[nbrPointY].y)
+    );
 }
 
 
 void orthoSquareMesh::buildFaceCenter(int ownerPoint, int nbrPoint)
 {
-    faceCenter_.push_back
+    Cf_.push_back
     (
         {
             0.5*(points_[ownerPoint].x + points_[nbrPoint].x),
@@ -214,73 +229,50 @@ void orthoSquareMesh::buildFaceCenter(int ownerPoint, int nbrPoint)
 }
 
 
+void orthoSquareMesh::buildDeltaCoeffs()
+{
+    for (int k=0; k<neighbor_.size(); k++)
+    {
+        int owner = owner_[k];
+        int nbr = neighbor_[k];
+        Vector ownerC = C_[owner];
+        Vector nbrC = C_[nbr];
+
+        deltaCoeffs_.push_back
+        (
+            1.0
+          / pow
+            (
+                (ownerC.x - nbrC.x) * (ownerC.x - nbrC.x)
+              + (ownerC.y - nbrC.y) * (ownerC.y - nbrC.y),
+                0.5
+            )
+        );
+    }
+
+    for (int k=0; k<patches_.size(); k++)
+    {
+        deltaCoeffs_.insert
+        (
+            deltaCoeffs_.end(),
+            patches_[k].deltaCoeffs().begin(),
+            patches_[k].deltaCoeffs().end()
+        );
+    }
+}
+
+
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
-const std::vector<std::vector<int>>& orthoSquareMesh::faces() const
+const Patch& orthoSquareMesh::findPatch(std::string name) const
 {
-    return faces_;
-}
+    for (int k=0; k<patches_.size(); k++)
+        if (name == patches_[k].name())
+            return patches_[k];
 
+    std::cout << 
+    "Not a patch name. (At orthoSquareMesh::patchInfo(std::string)): "
+    << name << std::endl;
 
-const std::vector<Vector>& orthoSquareMesh::Nf() const
-{
-    return Nf_;
-}
-
-
-const std::vector<double>& orthoSquareMesh::Sf() const
-{
-    return Sf_;
-}
-
-
-const std::vector<int>& orthoSquareMesh::owner() const
-{
-    return owner_;
-}
-
-
-const std::vector<int>& orthoSquareMesh::neighbor() const
-{
-    return neighbor_;
-}
-
-
-const std::unique_ptr<Patch>& orthoSquareMesh::patches
-(
-    std::string name
-) const
-{
-    try
-    {
-        return patches_.at(name);
-    }
-    catch (const std::out_of_range& e)
-    {
-        std::cerr << 
-        "Not a patch name. (At orthoSquareMesh::patchInfo(std::string)): "
-        << e.what() << "\n";
-
-        std::abort();
-    }
-}
-
-
-int orthoSquareMesh::nCells() const
-{
-    return nCells_;
-}
-
-
-const std::vector<Vector>& 
-orthoSquareMesh::cellCenter() const
-{
-    return cellCenter_;
-}
-
-
-const std::vector<Vector>&
-orthoSquareMesh::faceCenter() const
-{
-    return faceCenter_;
+    std::abort();
 }

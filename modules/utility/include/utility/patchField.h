@@ -27,7 +27,7 @@ class PatchField
         const volField<Type>& vol_;
 
         // Geometric information of patch
-        const std::unique_ptr<Patch>& patch_;
+        const Patch& patch_;
 
 
 public:
@@ -48,6 +48,10 @@ public:
             const PatchField& oldField,
             const volField<Type>& internal
         );
+
+
+    // Destructor
+    virtual ~PatchField() = default;
 
 
     // Runtime Selection
@@ -71,7 +75,7 @@ public:
         (
             const volField<Type>& vol,
             const Patch& patch,
-            const Dictionary dict
+            const Dictionary& dict
         );
 
         // Registration
@@ -88,7 +92,7 @@ public:
                 ) -> std::unique_ptr<PatchField>
                 {
                     return std::make_unique<Derived>(vol, patch, dict);
-                }
+                };
             }
         };
 
@@ -123,11 +127,16 @@ public:
         virtual Field<Type> gradientBoundaryCoeffs() const = 0;
 
         // Return volField
-        const volField<Type>& vol() const;
+        const volField<Type>& vol() const
+        {
+            return vol_;
+        }
 
         // Return patch
-        const Patch& patch() const;
-        
+        const Patch& patch() const
+        {
+            return patch_;
+        }
 };
 
 

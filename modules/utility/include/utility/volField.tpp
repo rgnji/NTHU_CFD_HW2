@@ -20,24 +20,22 @@ volField<Type>::volField
     name_(name),
     mesh_(mesh)
 {
-    std::vector<std::string> ps{"left", "right", "bottom", "top"};
-    for (std::string key : ps)
+    auto& patches = mesh.patches();
+    
+    for (int k=0; k<patches.size(); k++)
     {
-        Dictionary subDict = dict.subDict(key);
-        boundary_[key] = 
-            PatchField<Type>::New(*this, mesh.patches(key), dict.subDict(key));
+        std::string name = patches[k].name();
+        Dictionary subDict = dict.subDict(name);
+
+        boundary_.push_back
+        (
+            PatchField<Type>::New(*this, mesh.patches[k], dict.subDict(name))
+        );
     }
 }
 
 
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
-
-template<class Type>
-const orthoSquareMesh& volField<Type>::mesh() const
-{
-    return mesh_;
-}
-
 
 template<class Type>
 void volField<Type>::write(std::string path) const

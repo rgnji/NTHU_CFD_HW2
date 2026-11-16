@@ -26,10 +26,8 @@ Patch::Patch
 
 void Patch::buildDeltaCoeff(const orthoSquareMesh& mesh)
 {
-    const std::vector<Vector>& 
-        cellCenter = mesh.cellCenter();
-    const std::vector<Vector>& 
-        faceCenter = mesh.faceCenter();
+    const std::vector<Vector>& cellCenter = mesh.C();
+    const std::vector<Vector>& faceCenter = mesh.Cf();
     
     for (int k=0; k<nFaces_; k++)
     {
@@ -46,21 +44,9 @@ void Patch::buildDeltaCoeff(const orthoSquareMesh& mesh)
 
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
-const orthoSquareMesh& Patch::mesh() const
-{
-    return mesh_;
-}
-
-
 const std::span<const int> Patch::faceCells() const
 {
     const std::vector<int>& owner = mesh_.owner();
 
     return std::span<const int>(owner.data() + startFace_, nFaces_);
-}
-
-
-const std::vector<double>& Patch::deltaCoeffs() const
-{
-    return deltaCoeff_;
 }

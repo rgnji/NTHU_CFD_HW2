@@ -15,41 +15,59 @@ class Patch;
 
 class orthoSquareMesh
 {
-    // Private data
+    // Private Data
 
-        // Mesh sizes (include boundary)
-        int Nx_, Ny_;
-        double dx_, dy_;
-        
-        // Total cells
-        int nCells_;
+        // Basic Data
 
-        // Points
-        std::vector<Vector> points_;
+            // Mesh sizes (nodes)
+            int Nx_, Ny_;
+            double dx_, dy_;
+            
+            // Total cells
+            int nCells_;
 
-        // Faces(2 points form a face in 2D meshes)
-        std::vector<std::vector<int>> faces_;
+            // Points
+            std::vector<Vector> points_;
 
-        // Face normal
-        std::vector<Vector> Nf_;
+            // Faces(2 points form a face in 2D meshes)
+            std::vector<std::vector<int>> faces_;
 
-        // Face size
-        std::vector<double> Sf_;
+            // Cell of smaller index in a pair
+            std::vector<int> owner_;
 
-        // Cell of smaller index in a pair
-        std::vector<int> owner_;
+            // Cell of larger index in a pair
+            std::vector<int> neighbor_;
 
-        // Cell of larger index in a pair
-        std::vector<int> neighbor_;
+            // Patch information
+            std::vector<Patch> patches_;
 
-        // Cell centers
-        std::vector<Vector> cellCenter_;
 
-        // Face centers
-        std::vector<Vector> faceCenter_;
+        // Derived Data
 
-        // Patch information
-        std::map<std::string, std::unique_ptr<Patch>> patches_;
+            // Cell centers
+            std::vector<Vector> C_;
+
+            // Cell volume
+            std::vector<double> V_;
+
+            // Face centers
+            std::vector<Vector> Cf_;
+
+            // Face normal
+            std::vector<Vector> Sf_;
+
+            // Face size
+            std::vector<double> magSf_;
+
+            // Reciprocal of cell center distance (include boundary)
+            std::vector<double> deltaCoeffs_;
+
+            // Interpolation weights
+            // std::vector<double> weights_;
+
+            // Vector between cell centers for non-orthogonal correction
+            // std::vector<Vector> delta_;
+
 
     // Private Member Functions
 
@@ -58,9 +76,11 @@ class orthoSquareMesh
 
         void buildFaces(int pointOwner, int pointNbr, Vector p, double len);
 
-        void buildCellCenter(int ownerPoint, int nbrPointX, int nbrPointY);
+        void buildCell(int ownerPoint, int nbrPointX, int nbrPointY);
 
         void buildFaceCenter(int ownerPoint, int nbrPoint);
+
+        void buildDeltaCoeffs();
 
         // Arrange patch information
         void buildPatch();
@@ -82,32 +102,77 @@ public:
 
     // Member functions
 
-        // Return reference of faces
-        const std::vector<std::vector<int>>& faces() const;
+        // Number of data
+        int nPoints() const
+        {
+            return points_.size();
+        }
+        int nFaces() const
+        {
+            return faces_.size();
+        }
+        int nCells() const
+        {
+            return nCells_;
+        }
+        int nInternalFaces() const
+        {
+            return neighbor_.size();
+        }
 
-        // Return reference of Nf
-        const std::vector<Vector>& Nf() const;
+        // Return patch information
+        const std::vector<Patch>& patches() const
+        {
+            return patches_;
+        }
+        const Patch& findPatch(std::string name) const;
+        // Patch& patch(int i) const;
 
-        // Return reference of Sf
-        const std::vector<double>& Sf() const;
+        // Reference of basic data
+        const std::vector<Vector>& points() const
+        {
+            return points_;
+        }
+        const std::vector<std::vector<int>>& faces() const
+        {
+            return faces_;
+        }
+        const std::vector<int>& owner() const
+        {
+            return owner_;
+        }
+        const std::vector<int>& neighbor() const
+        {
+            return neighbor_;
+        }
 
-        // Return reference of owner
-        const std::vector<int>& owner() const;
-
-        // Return reference of neighbor
-        const std::vector<int>& neighbor() const;
-
-        // Return specific patch information
-        const std::unique_ptr<Patch>& patches(std::string name) const;
-
-        // Return total cells
-        int nCells() const;
-
-        // Return cell centers
-        const std::vector<Vector>& cellCenter() const;
-
-        // Return face centers
-        const std::vector<Vector>& faceCenter() const;
+        // Reference of derived data
+        const std::vector<Vector>& C() const
+        {
+            return C_;
+        }
+        const std::vector<double>& V() const
+        {
+            return V_;
+        }
+        const std::vector<Vector>& Cf() const
+        {
+            return Cf_;
+        }
+        const std::vector<Vector>& Sf() const
+        {
+            return Sf_;
+        }
+        const std::vector<double>& magSf() const
+        {
+            return magSf_;
+        }
+        const std::vector<double>& deltaCoeffs() const
+        {
+            return deltaCoeffs_;
+        }
+        // const std::vector<double>& weights() const;
+        // const std::vector<Vector>& delta() const;
 };
 
 

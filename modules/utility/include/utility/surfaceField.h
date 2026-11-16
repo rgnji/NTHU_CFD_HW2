@@ -28,5 +28,8 @@ public:
     // Member Functions
 
         // Return mesh object
-        const orthoSquareMesh& mesh() const;
+        const orthoSquareMesh& mesh() const
+        {
+            return mesh_;
+        }
 };

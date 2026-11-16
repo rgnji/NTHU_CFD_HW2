@@ -29,7 +29,7 @@ class volField
         orthoSquareMesh& mesh_;
 
         // Patch field list
-        std::map<std::string, std::unique_ptr<PatchField<Type>>> boundary_;
+        std::vector<std::unique_ptr<PatchField<Type>>> boundary_;
 
     // Private Member List
 
@@ -53,7 +53,22 @@ public:
     // Member Functions
 
         // Return mesh reference
-        const orthoSquareMesh& mesh() const;
+        const orthoSquareMesh& mesh() const
+        {
+            return mesh_;
+        }
+
+        // Return boundary patches
+        const std::vector<std::unique_ptr<PatchField<Type>>>& boundary() const
+        {
+            return boundary_;
+        }
+
+        // Return boundary by patch index
+        const PatchField<Type>& boundary(int patch) const
+        {
+            return *(boundary_.at(patch))
+        }
 
         // Output flowfield
         void write(std::string path) const;
