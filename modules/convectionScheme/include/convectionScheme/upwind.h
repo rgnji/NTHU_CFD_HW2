@@ -2,7 +2,7 @@
 #define upwind_H
 
 #include "convectionScheme/convectionScheme.h"
-#include "utility/surfaceField.h"
+#include "field/surfaceField.h"
 
 
 namespace convectionSchemeType

@@ -1,7 +1,7 @@
 #ifndef fixedValue_H
 #define fixedValue_H
 
-#include "utility/PatchField.h"
+#include "field/PatchField.h"
 #include <string>
 #include <vector>
 

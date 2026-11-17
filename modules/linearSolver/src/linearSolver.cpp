@@ -16,7 +16,7 @@ linearSolver::linearSolver
 {}
 
 
-std::map<std::string, linearSolver::Creator>& table()
+std::map<std::string, linearSolver::Creator>& linearSolver::table()
 {
     static std::map<std::string, linearSolver::Creator> t;
     return t;

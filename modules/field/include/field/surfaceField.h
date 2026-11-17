@@ -1,6 +1,7 @@
-#pragma once
+#ifndef surfaceField_H
+#define surfaceField_H
 
-#include "utility/Field.h"
+#include "field/Field.h"
 
 
 class orthoSquareMesh;
@@ -33,3 +34,9 @@ public:
             return mesh_;
         }
 };
+
+
+#include "field/surfaceField.tpp"
+
+
+#endif

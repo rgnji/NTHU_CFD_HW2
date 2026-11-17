@@ -30,7 +30,7 @@ zeroGradient<Type>::zeroGradient
     const volField<Type>& internal
 )
 :
-    PatchField<Type>(oldField, internal),
+    PatchField<Type>(oldField, internal)
 {}
 
 

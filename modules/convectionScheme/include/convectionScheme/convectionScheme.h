@@ -1,7 +1,7 @@
 #ifndef convectionScheme_H
 #define convectionScheme_H
 
-#include "utility/surfaceField.h"
+#include "field/surfaceField.h"
 #include <map>
 #include <memory>
 #include <string>

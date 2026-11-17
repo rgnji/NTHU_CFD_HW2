@@ -1,7 +1,7 @@
 #ifndef zeroGradient_H
 #define zeroGradient_H
 
-#include "utility/PatchField.h"
+#include "field/PatchField.h"
 
 
 template<class Type>

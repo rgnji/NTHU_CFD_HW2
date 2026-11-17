@@ -1,4 +1,4 @@
-add_library(utility SHARED
+add_library(utility STATIC
     src/lduMatrix.cpp
     src/orthoSquareMesh.cpp
     src/Patch.cpp

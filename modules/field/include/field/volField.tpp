@@ -1,7 +1,7 @@
-#include "utility/volField.h"
+#include "field/volField.h"
 #include "utility/orthoSquareMesh.h"
 #include "utility/Dictionary.h"
-#include "utility/PatchField.h"
+#include "field/PatchField.h"
 #include <fstream>
 #include <format>
 
@@ -29,7 +29,7 @@ volField<Type>::volField
 
         boundary_.push_back
         (
-            PatchField<Type>::New(*this, mesh.patches[k], dict.subDict(name))
+            PatchField<Type>::New(*this, mesh.patches().at(k), dict.subDict(name))
         );
     }
 }
@@ -45,8 +45,8 @@ void volField<Type>::write(std::string path) const
     // Store the field as 1D arrary
     for (int k=0; k<mesh_.nCells()-1; k++)
     {
-        file << std::format("{:.6f}", get(k)) << ",";
+        file << std::format("{:.6f}", this->get(k)) << ",";
     }
-    file << std::format("{:.6f}", get(mesh_.nCells()-1));
+    file << std::format("{:.6f}", this->get(mesh_.nCells()-1));
     file.close();
 }

@@ -2,7 +2,7 @@
 #include "utility/Dictionary.h"
 #include "utility/pTraits.h"
 #include "utility/Patch.h"
-#include "utility/volField.h"
+#include "field/volField.h"
 
 
 // * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
@@ -31,7 +31,7 @@ fixedValue<Type>::fixedValue
     const volField<Type>& internal
 )
 :
-    PatchField<Type>(oldField, internal),
+    PatchField<Type>(oldField, internal)
 {}
 
 

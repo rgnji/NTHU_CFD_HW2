@@ -1,7 +1,7 @@
 #ifndef volField_H
 #define volField_H
 
-#include "utility/Field.h"
+#include "field/Field.h"
 #include <string>
 #include <map>
 #include <memory>
@@ -26,7 +26,7 @@ class volField
         std::string name_;
 
         // Reference to mesh
-        orthoSquareMesh& mesh_;
+        const orthoSquareMesh& mesh_;
 
         // Patch field list
         std::vector<std::unique_ptr<PatchField<Type>>> boundary_;
@@ -67,7 +67,7 @@ public:
         // Return boundary by patch index
         const PatchField<Type>& boundary(int patch) const
         {
-            return *(boundary_.at(patch))
+            return *(boundary_.at(patch));
         }
 
         // Output flowfield
@@ -75,7 +75,7 @@ public:
 };
 
 
-#include "utility/volField.tpp"
+#include "field/volField.tpp"
 
 
 #endif

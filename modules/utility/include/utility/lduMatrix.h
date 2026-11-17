@@ -13,11 +13,8 @@ losortStart :  0  0  1  2  3  5  7
 #ifndef lduMatrix_H
 #define lduMatrix_H
 
-#include "utility/Field.h"
 #include <vector>
-#include <utility>
-#include <algorithm>
-#include <numeric>
+#include <span>
 
 
 class orthoSquareMesh;
@@ -41,16 +38,13 @@ class lduMatrix
             // Upper triangle
             std::vector<double> upper_;
 
-            // Righ hand side
-            std::vector<double> b_;
-        
         // Internal pairs
 
             // Lower triangle addressing
-            const std::vector<int>& lowerAddr_;
+            const std::vector<int>& owner_;
 
             // Upper triangle addressing
-            const std::vector<int>& upperAddr_;
+            const std::vector<int>& neighbor_;
 
             // Row pointer in CSR format for lower triangle
             std::vector<int> ownerStart_;
@@ -80,10 +74,13 @@ public:
         void buildDiag(int center, double coeff);
         void buildLower(int f, double coeff);
         void buildUpper(int f, double coeff);
-        void buildB(int center, double coeff);
 
         // Return coefficients
         const std::vector<double>& diag() const
+        {
+            return diag_;
+        }
+        std::vector<double>& diagList()
         {
             return diag_;
         }
@@ -95,19 +92,15 @@ public:
         {
             return upper_;
         }
-        const std::vector<double>& b() const
-        {
-            return b_;
-        }
 
         // Return addressing
-        const std::vector<int>& lowerAddr() const
+        std::span<const int> lowerAddr() const
         {
-            return lowerAddr_;
+            return std::span<const int>(owner_.data(), neighbor_.size());
         }
         const std::vector<int>& upperAddr() const
         {
-            return upperAddr_;
+            return neighbor_;
         }
         const std::vector<int>& losortAddr() const
         {
@@ -130,17 +123,11 @@ public:
             const std::vector<double>& x,
             const std::vector<double>& b
         ) const;
-
         double residualNorm
         (
             const std::vector<double>& x,
             const std::vector<double>& b
         ) const;
-
-        std::vector<double>& diagList()
-        {
-            return diag_;
-        }
 };
 
 

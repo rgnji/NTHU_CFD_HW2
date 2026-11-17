@@ -1,7 +1,13 @@
-add_library(convectionScheme STATIC
-    src/upwind.cpp
+add_library(convectionScheme OBJECT
+    src/Register.cpp
 )
 
-target_include_directories(convectionScheme PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(convectionScheme PUBLIC 
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
 
-target_link_libraries(convectionScheme PRIVATE utility)
+target_link_libraries(convectionScheme PUBLIC 
+    utility
+    field
+    utilHeader
+)

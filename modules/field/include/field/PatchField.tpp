@@ -1,6 +1,7 @@
-#include "utility/PatchField.h"
+#include "field/PatchField.h"
 #include "utility/Patch.h"
-#include "utility/volField.h"
+#include "field/volField.h"
+#include "utility/Dictionary.h"
 #include <stdexcept>
 
 
@@ -14,7 +15,7 @@ PatchField<Type>::PatchField
     const Dictionary dict
 )
 :
-    Field<Type>(patch.faceCells().size()),
+    Field<Type>(patch.nFaces()),
     vol_(vol),
     patch_(patch)
 {}
@@ -43,7 +44,8 @@ std::unique_ptr<PatchField<Type>> PatchField<Type>::New
     const Dictionary& dict
 )
 {
-    auto it = table().find(dict.get<std::string>("type"));
+    std::string name = dict.get<std::string>("type");
+    auto it = table().find(name);
 
     if (it == table().end())
         throw std::runtime_error("Unknown PatchField type: " + name);
@@ -58,7 +60,7 @@ template<class Type>
 Field<Type> PatchField<Type>::patchInternalField() const
 {
     Field<Type> field(this->size());
-    auto& owner = patch_.get()->faceCells();
+    auto owner = patch_.faceCells();
 
     for 
     (int k=0; k<owner.size(); k++)
@@ -74,8 +76,8 @@ template<class Type>
 Field<Type> PatchField<Type>::snGrad() const
 {
     Field<Type> field(this->size());
-    auto& deltaCoeffs = this->patch().deltaCoeffs();
-    auto& faceCells = patch_.get()->faceCells();
+    const auto& deltaCoeffs = this->patch().deltaCoeffs();
+    auto faceCells = patch_.faceCells();
 
     for (int k=0; k<this->size(); k++)
     {

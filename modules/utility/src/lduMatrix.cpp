@@ -1,7 +1,9 @@
 #include "utility/lduMatrix.h"
 #include "utility/orthoSquareMesh.h"
 #include <iostream>
-#include <cmath>s
+#include <cmath>
+#include <numeric>
+#include <algorithm>
 
 
 // * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
@@ -11,9 +13,8 @@ lduMatrix::lduMatrix(const orthoSquareMesh& mesh)
 	diag_(mesh.nCells(), 0.0),
 	lower_(mesh.nInternalFaces(), 0.0),
 	upper_(mesh.nInternalFaces(), 0.0),
-	b_(mesh.nCells(), 0.0),
-	lowerAddr_(mesh.owner()),
-	upperAddr_(mesh.neighbor()),
+	owner_(mesh.owner()),
+	neighbor_(mesh.neighbor()),
 	ownerStart_(mesh.nCells()+1, 0),
 	losortAddr_(mesh.nInternalFaces(), 0),
 	losortStart_(mesh.nCells()+1, 0)
@@ -26,8 +27,11 @@ lduMatrix::lduMatrix(const orthoSquareMesh& mesh)
 
 void lduMatrix::buildLduAddressing()
 {
+	auto lowerAddr = std::span<const int>(owner_.data(), neighbor_.size());
+	const auto& upperAddr = neighbor_;
+
 	// Collect owners
-	for (int k : lowerAddr_)
+	for (int k : lowerAddr)
 	{
 		ownerStart_[k + 1]++;
 	}
@@ -40,12 +44,12 @@ void lduMatrix::buildLduAddressing()
 
 	// The original index of upperAddr_ if couplings is sorted according to .second()
 	std::iota(losortAddr_.begin(), losortAddr_.end(), 0);
-	std::stable_sort(losortAddr_.begin(), losortAddr_.end(), [this](int i1, int i2) {
-		return upperAddr_[i1] < upperAddr_[i2];
+	std::stable_sort(losortAddr_.begin(), losortAddr_.end(), [upperAddr](int i1, int i2) {
+		return upperAddr[i1] < upperAddr[i2];
 	});
 
 	// Count how many times a cell appears to be the neighbor
-	for (int k : upperAddr_)
+	for (int k : upperAddr)
 	{
 		losortStart_[k + 1]++;
 	}
@@ -78,19 +82,13 @@ void lduMatrix::buildUpper(int f, double coeff)
 }
 
 
-void lduMatrix::buildB(int center, double coeff)
-{
-	b_[center] += coeff;
-}
-
-
 std::vector<double> lduMatrix::residual
 (
 	const std::vector<double>& x,
     const std::vector<double>& b
 ) const
 {
-	const auto& l = lowerAddr();
+	auto l = lowerAddr();
     const auto& u = upperAddr();
     const int nCells = static_cast<int>(x.size());
     const int nPairs = static_cast<int>(l.size());

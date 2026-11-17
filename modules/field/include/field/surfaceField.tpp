@@ -1,4 +1,4 @@
-#include "utility/surfaceField.h"
+#include "field/surfaceField.h"
 #include "utility/orthoSquareMesh.h"
 
 

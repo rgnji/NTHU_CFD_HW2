@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <stdexcept>
 
 
 class lduMatrix;
@@ -48,6 +49,8 @@ public:
             double relTol,
             int maxIter
         );
+
+        linearSolver(const Dictionary& dict);
 
 
     // Destructor

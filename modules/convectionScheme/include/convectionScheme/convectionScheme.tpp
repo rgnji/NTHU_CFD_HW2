@@ -1,6 +1,6 @@
 #include "convectionScheme/convectionScheme.h"
 #include "utility/Dictionary.h"
-#include "utility/fvMatrix.h"
+#include "utilHeader/fvMatrix.h"
 #include "utility/orthoSquareMesh.h"
 #include "utility/Patch.h"
 
@@ -11,7 +11,8 @@ std::unique_ptr<convectionScheme<Type>> convectionScheme<Type>::New
     const Dictionary& dict
 )
 {
-    auto it = table().find(dict.get<std::string>("convectionScheme"));
+    std::string name = dict.get<std::string>("convectionScheme");
+    auto it = table().find(name);
 
     if (it == table().end())
         throw std::runtime_error("Unknown convection scheme: " + name);

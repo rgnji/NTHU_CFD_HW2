@@ -1,11 +1,12 @@
 #ifndef Patch_H
 #define Patch_H
 
-#include "utility/orthoSquareMesh.h"
-#include "utility/Vector.h"
 #include <string>
 #include <vector>
 #include <span>
+
+
+class orthoSquareMesh;
 
 
 class Patch
@@ -49,19 +50,15 @@ public:
 
     // Member Functions
 
-        // Return name
+        // Return private data
         const std::string& name() const
         {
             return name_;
         }
-        
-        // Return mesh
         const orthoSquareMesh& mesh() const
         {
             return mesh_;
         }
-
-        // Return startFace and nFaces
         const int& startFace() const
         {
             return startFace_;
@@ -85,8 +82,6 @@ public:
         {
             return faceCells()[f];
         }
-
-        
 };
 
 

@@ -1,8 +1,12 @@
-add_library(linearSolver STATIC
+add_library(linearSolver OBJECT
+    src/linearSolver.cpp
     src/GaussSeidel.cpp
-    src/Jacobi.cpp
 )
 
-target_include_directories(linearSolver PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(linearSolver PUBLIC 
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
 
-target_link_libraries(linearSolver PRIVATE utility)
+target_link_libraries(linearSolver PUBLIC 
+    utility
+)

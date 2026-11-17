@@ -1,7 +1,7 @@
 #ifndef secondCentralDiff_H
 #define secondCentralDiff_H
 
-#include "utility/fvMatrix.h"
+#include "utilHeader/fvMatrix.h"
 
 
 template<class Type>
@@ -35,5 +35,9 @@ public:
 };
 
 };
+
+
+#include "diffusionScheme/secondCentralDiff.tpp"
+
 
 #endif 

@@ -1,7 +1,7 @@
 #ifndef PatchField_H
 #define PatchField_H
 
-#include "utility/Field.h"
+#include "field/Field.h"
 #include <map>
 #include <string>
 #include <span>
@@ -60,7 +60,7 @@ public:
         (
             const volField<Type>& vol,
             const Patch& patch,
-            const Dictionary dict
+            const Dictionary& dict
         );
 
         // Define table
@@ -88,7 +88,7 @@ public:
                 (
                     const volField<Type>& vol,
                     const Patch& patch,
-                    const Dictionary dict
+                    const Dictionary& dict
                 ) -> std::unique_ptr<PatchField>
                 {
                     return std::make_unique<Derived>(vol, patch, dict);
@@ -140,7 +140,7 @@ public:
 };
 
 
-#include "utility/PatchField.tpp"
+#include "field/PatchField.tpp"
 
 
 #define makePatchFields(Name)                      \

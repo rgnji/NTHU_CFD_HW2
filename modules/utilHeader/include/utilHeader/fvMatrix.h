@@ -66,7 +66,7 @@ public:
 };
 
 
-#include "utility/fvMatrix.tpp"
+#include "utilHeader/fvMatrix.tpp"
 
 
 #endif

@@ -1,7 +1,7 @@
 #include "diffusionScheme/secondCentralDiff.h"
-#include "utility/volField.h"
-#include "utility/surfaceField.h"
-#include "utility/PatchField.h"
+#include "field/volField.h"
+#include "field/surfaceField.h"
+#include "field/PatchField.h"
 #include <vector>
 
 
