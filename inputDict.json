@@ -1,3 +1,38 @@
 {
-    
+    "convectionScheme": "upwind",
+
+    "0":
+    {
+        "field": "T",
+        "initialValue": "0.0",
+        "patches":
+        {
+            "left":
+            {
+                "type": "fixedValue",
+                "value": "1"
+            },
+            "right":
+            {
+                "type": "zeroGradient"
+            },
+            "bottom":
+            {
+                "type": "fixedValue",
+                "value": "1"
+            },
+            "top":
+            {
+                "type": "zeroGradient"
+            }
+        }
+    },
+
+    "solver": "GaussSeidel",
+    "convergence": 
+    {
+        "tolerance": 10e-7,
+        "relTol": 10e-2,
+        "maxIter": 10e3
+    }
 }

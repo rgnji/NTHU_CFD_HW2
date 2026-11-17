@@ -3,6 +3,8 @@
 #include "utility/lduMatrix.h"
 
 
+// * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
+
 linearSolver::linearSolver
 (
     double tolerance,
@@ -15,6 +17,16 @@ linearSolver::linearSolver
     maxIter_(maxIter)
 {}
 
+
+linearSolver::linearSolver(const Dictionary& dict)
+:
+    tolerance_(dict.get<double>("tolerance")),
+    relTol_(dict.get<double>("relTol")),
+    maxIter_(dict.get<double>("maxIter"))
+{}
+
+
+// * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
 std::map<std::string, linearSolver::Creator>& linearSolver::table()
 {
@@ -29,5 +41,5 @@ std::unique_ptr<linearSolver> linearSolver::New(const Dictionary& dict)
     auto it = table().find(type);
     if (it == table().end())
         throw std::runtime_error("Unknown linear solver: " + type);
-    return it->second(dict);
+    return it->second(dict.subDict("convergence"));
 }
