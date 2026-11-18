@@ -14,27 +14,21 @@ class surfaceField;
 namespace diffusionScheme
 {
 
+template<class Type>
 class secondCentralDiff
 {
 public:
 
-    // Constructor
-
-        // Construct from order of accuracy
-        secondCentralDiff();
-
-    
     // Member functions
 
-        template<class Type>
         fvMatrix<Type> interpolate
         (
             const surfaceField<Type>& phi,
-            const volField<Type>& field
+            volField<Type>& field
         );
 };
 
-};
+}
 
 
 #include "diffusionScheme/secondCentralDiff.tpp"

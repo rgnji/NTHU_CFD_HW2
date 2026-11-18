@@ -18,3 +18,7 @@ add_subdirectory(modules/convectionScheme)
 add_subdirectory(modules/boundaryCondition)
 
 add_subdirectory(src)
+
+target_compile_definitions(NTHU_CFD_HW2 PRIVATE
+    PROJECT_DIR="${CMAKE_SOURCE_DIR}"
+)

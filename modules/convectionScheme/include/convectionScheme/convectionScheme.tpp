@@ -64,3 +64,14 @@ void convectionScheme<Type>::add
         }
     }
 }
+
+
+template<class Type>
+void convectionScheme<Type>::add
+(
+    fvMatrix<Type>& eqn,
+    const surfaceField<double>& phi
+)
+{
+    this->add(eqn, phi, this->weights(phi));
+}

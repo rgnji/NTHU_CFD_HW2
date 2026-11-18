@@ -22,6 +22,20 @@ orthoSquareMesh::orthoSquareMesh(int Nx, int Ny, double dx, double dy)
 }
 
 
+orthoSquareMesh::orthoSquareMesh(const Dictionary& dict)
+:
+    Nx_(dict.get<std::vector<int>>("node").at(0)),
+    Ny_(dict.get<std::vector<int>>("node").at(1)),
+    dx_(dict.get<Vector>("size").x),
+    dy_(dict.get<Vector>("size").y),
+    nCells_((Nx_-1)*(Ny_-1)),
+    points_(Nx_*Ny_)
+{
+    build();
+    buildDeltaCoeffs();
+}
+
+
 // * * * * * * * * * * * * * Private Member Functions * * * * * * * * * * * *//
 
 void orthoSquareMesh::build()
@@ -31,7 +45,7 @@ void orthoSquareMesh::build()
     {
         for (int i=0; i<Ny_; i++)
         {
-            int index = i * Nx_ + j;
+            int index = j * Nx_ + i;
             points_[index] = {i*dx_, j*dy_};
         }
     }
@@ -60,7 +74,11 @@ void orthoSquareMesh::build()
                     dy_
                 );
 
-                buildFaceCenter(owner+1, owner+1+Nx_);
+                buildFaceCenter
+                (
+                    j * Nx_ + i + 1,
+                    (j + 1) * Nx_ + i + 1
+                );
             }
 
             // N
@@ -77,11 +95,20 @@ void orthoSquareMesh::build()
                     dx_
                 );
 
-                buildFaceCenter(owner+Nx_, owner+Nx_+1);
+                buildFaceCenter
+                (
+                    (j + 1) * Nx_ + i,
+                    (j + 1) * Nx_ + i + 1
+                );
             }
 
             // owner index = point index at bottom left of the cell
-            buildCell(owner, owner+1, owner+Nx_);
+            buildCell
+            (
+                j * Nx_ + i,
+                j * Nx_ + i + 1,
+                (j + 1) * Nx_ + i
+            );
         }
     }
 
@@ -95,11 +122,7 @@ void orthoSquareMesh::buildPatch()
     int cellNumY = Ny_ - 1;
 
     // left patch
-    patches_.push_back
-    (
-        Patch(*this, "left", int(faces_.size()), cellNumY)
-    );
-
+    int leftStart = faces_.size();
     for (int j=0; j<cellNumY; j++)
     {
         owner_.push_back(j * cellNumX);
@@ -112,15 +135,11 @@ void orthoSquareMesh::buildPatch()
             dy_
         );
 
-        buildFaceCenter(j * cellNumX, j * cellNumX + Nx_);
+        buildFaceCenter(j * Nx_, (j + 1) * Nx_);
     }
 
     // right patch
-    patches_.push_back
-    (
-        Patch(*this, "right", int(faces_.size()), cellNumY)
-    );
-
+    int rightStart = faces_.size();
     for (int j=0; j<cellNumY; j++)
     {
         owner_.push_back((j + 1) * cellNumX - 1);
@@ -133,15 +152,11 @@ void orthoSquareMesh::buildPatch()
             dy_
         );
 
-        buildFaceCenter((j + 1) * cellNumX, (j + 1) * cellNumX + Nx_);
+        buildFaceCenter((j + 1) * Nx_ - 1, (j + 2) * Nx_ - 1);
     }
 
     // bottom patch
-    patches_.push_back
-    (
-        Patch(*this, "bottom", int(faces_.size()), cellNumX)
-    );
-
+    int bottomStart = faces_.size();
     for (int i=0; i<cellNumX; i++)
     {
         owner_.push_back(i);
@@ -158,11 +173,7 @@ void orthoSquareMesh::buildPatch()
     }
     
     // top patch
-    patches_.push_back
-    (
-        Patch(*this, "top", int(faces_.size()), cellNumX)
-    );
-
+    int topStart = faces_.size();
     for (int i=0; i<cellNumX; i++)
     {
         owner_.push_back((cellNumY - 1) * cellNumX + i);
@@ -177,10 +188,27 @@ void orthoSquareMesh::buildPatch()
 
         buildFaceCenter
         (
-            (cellNumY - 1) * cellNumX + i + Nx_,
-            (cellNumY - 1) * cellNumX + i + Nx_ + 1
+            (Ny_ - 1) * Nx_ + i,
+            (Ny_ - 1) * Nx_ + i + 1
         );
     }
+
+    patches_.push_back
+    (
+        Patch(*this, "left", leftStart, cellNumY)
+    );
+    patches_.push_back
+    (
+        Patch(*this, "right", rightStart, cellNumY)
+    );
+    patches_.push_back
+    (
+        Patch(*this, "bottom", bottomStart, cellNumX)
+    );
+    patches_.push_back
+    (
+        Patch(*this, "top", topStart, cellNumX)
+    );
 }
 
 
@@ -194,7 +222,7 @@ void orthoSquareMesh::buildFaces
 {
     std::vector<int> face{ownerPoint, nbrPoint};
     faces_.push_back(face);
-    Sf_.push_back(p);
+    Sf_.push_back(p * len);
     magSf_.push_back(len);
 }
 

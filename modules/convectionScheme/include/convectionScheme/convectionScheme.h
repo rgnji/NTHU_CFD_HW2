@@ -53,11 +53,19 @@ public:
 
     // Member Functions
 
-        // Interpolation weights
+        // Interpolation weights for implicit part
         virtual surfaceField<double> weights
         (
             const surfaceField<double>&
         ) const = 0;
+
+        // Deferred correction
+        virtual void correct
+        (
+            fvMatrix<Type>& eqn,
+            const surfaceField<double>& phi
+        ) const 
+        {}
 
         // Generate fvMatrix
         void add
@@ -65,6 +73,13 @@ public:
             fvMatrix<Type>& eqn,
             const surfaceField<double>& phi,
             const surfaceField<double>& weights
+        );
+
+        // Call weights
+        void add
+        (
+            fvMatrix<Type>& eqn,
+            const surfaceField<double>& phi
         );
 };
 

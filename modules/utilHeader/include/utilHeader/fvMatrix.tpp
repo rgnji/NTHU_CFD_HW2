@@ -19,8 +19,8 @@ fvMatrix<Type>::fvMatrix(volField<Type>& psi)
 {
     for (int p=0; p<psi.boundary().size(); p++)
     {
-        auto patch = *(psi.boundary().at(p));
-        Field<Type> zero(patch.patch().nFaces(), pTraits<Type>::one * 0);
+        const auto& patch = *(psi.boundary().at(p));
+        Field<Type> zero(patch.patch().nFaces(), pTraits<Type>::zero);
 
         internalCoeffs_.push_back(zero);
         boundaryCoeffs_.push_back(zero);
@@ -33,14 +33,14 @@ fvMatrix<Type>::fvMatrix(volField<Type>& psi)
 template<class Type>
 void fvMatrix<Type>::buildInternalCoeffs(int patch, int face, Type coeff)
 {
-    internalCoeffs_.at(patch).set(face, coeff);
+    internalCoeffs_[patch][face] += coeff;
 }
 
 
 template<class Type>
 void fvMatrix<Type>::buildBoundaryCoeffs(int patch, int face, Type coeff)
 {
-    boundaryCoeffs_.at(patch).set(face, coeff);
+    boundaryCoeffs_[patch][face] += coeff;
 }
 
 
@@ -67,8 +67,10 @@ linearSolver::SolverPerformance fvMatrix<Type>::solve
         }
     }
 
-    auto result = solver.solve(*this, psi_.fieldList(), totalSource);
+    auto result = solver.solve(*this, psi_.fieldList(), totalSource.field());
     this->diagList() = diagOriginal;
+
+    psi_.correctBoundaryConditions();
 
     return result;
 }

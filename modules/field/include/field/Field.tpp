@@ -4,14 +4,6 @@
 // * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
 
 template<class Type>
-Field<Type>::Field(int N)
-:
-    N_(N),
-    field_(N)
-{}
-
-
-template<class Type>
 Field<Type>::Field(const std::vector<Type>& field)
 :
     N_(field.size()),
@@ -20,7 +12,7 @@ Field<Type>::Field(const std::vector<Type>& field)
 
 
 template<class Type>
-Field<Type>::Field(int size, pTraits<Type> value)
+Field<Type>::Field(int size, const Type& value)
 :
     N_(size),
     field_(size, value)

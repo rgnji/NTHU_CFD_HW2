@@ -14,7 +14,7 @@ zeroGradient<Type>::zeroGradient
 :
     PatchField<Type>(vol, patch, dict)
 {
-    auto& faceCells = patch.faceCells();
+    auto faceCells = patch.faceCells();
 
     for (int k=0; k<this->size(); k++)
     {
@@ -37,19 +37,19 @@ zeroGradient<Type>::zeroGradient
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
 template<class Type>
-std::unique_ptr<zeroGradient<Type>> zeroGradient<Type>::clone
+std::unique_ptr<PatchField<Type>> zeroGradient<Type>::clone
 (
     const volField<Type>& newField
 ) const
 {
-    return zeroGradient(*this, newField);
+    return std::make_unique<zeroGradient>(*this, newField);
 }
 
 
 template<class Type>
 void zeroGradient<Type>::evaluate()
 {
-    auto& faceCells = this->patch().faceCells();
+    const auto& faceCells = this->patch().faceCells();
 
     for (int k=0; k<this->size(); k++)
     {
@@ -61,7 +61,7 @@ void zeroGradient<Type>::evaluate()
 template<class Type>
 Field<Type> zeroGradient<Type>::snGrad() const
 {
-    return Field<Type>(this->size(), pTraits<Type>::one * 0);
+    return Field<Type>(this->size(), pTraits<Type>::zero);
 }
 
 
@@ -75,19 +75,19 @@ Field<Type> zeroGradient<Type>::valueInternalCoeffs() const
 template<class Type>
 Field<Type> zeroGradient<Type>::valueBoundaryCoeffs() const
 {
-    return Field<Type>(this->size(), pTraits<Type>::one * 0);
+    return Field<Type>(this->size(), pTraits<Type>::zero);
 }
 
 
 template<class Type>
 Field<Type> zeroGradient<Type>::gradientInternalCoeffs() const
 {
-    return Field<Type>(this->size(), pTraits<Type>::one * 0);
+    return Field<Type>(this->size(), pTraits<Type>::zero);
 }
 
 
 template<class Type>
 Field<Type> zeroGradient<Type>::gradientBoundaryCoeffs() const
 {
-    return Field<Type>(this->size(), pTraits<Type>::one * 0);
+    return Field<Type>(this->size(), pTraits<Type>::zero);
 }

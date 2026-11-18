@@ -32,7 +32,7 @@ public:
     // Member Functions
 
         // Copy the object
-        virtual std::unique_ptr<zeroGradient> clone
+        virtual std::unique_ptr<PatchField<Type>> clone
         (
             const volField<Type>& newField
         ) const override;

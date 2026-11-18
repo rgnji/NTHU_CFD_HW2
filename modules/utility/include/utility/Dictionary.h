@@ -1,6 +1,7 @@
 #ifndef Dictionary_H
 #define Dictionary_H
 
+#include "utility/Vector.h"
 #include <nlohmann/json.hpp>
 #include <string>
 #include <fstream>
@@ -103,5 +104,13 @@ public:
         return k;
     }
 };
+
+
+inline void from_json(const nlohmann::json& j, Vector& v)
+{
+    v.x = j.at(0).get<double>();
+    v.y = j.at(1).get<double>();
+}
+
 
 #endif

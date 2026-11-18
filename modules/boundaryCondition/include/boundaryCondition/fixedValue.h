@@ -19,8 +19,6 @@ class fixedValue
 :
     public PatchField<Type>
 {
-    // Private data
-
 public:
 
     // Constructor
@@ -44,7 +42,7 @@ public:
     // Member Functions
 
         // Copy the object
-        virtual std::unique_ptr<fixedValue> clone
+        virtual std::unique_ptr<PatchField<Type>> clone
         (
             const volField<Type>& newField
         ) const override;

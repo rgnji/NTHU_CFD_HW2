@@ -38,14 +38,14 @@ void Patch::buildDeltaCoeff(const orthoSquareMesh& mesh)
         double xDis = abs(cellCenter[cell].x - faceCenter[face].x);
         double yDis = abs(cellCenter[cell].y - faceCenter[face].y);
 
-        deltaCoeff_.push_back(1.0 / pow(xDis * xDis + yDis * yDis, 0.5));
+        deltaCoeff_[k] = 1.0 / pow(xDis * xDis + yDis * yDis, 0.5);
     }
 }
 
 
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
-const std::span<const int> Patch::faceCells() const
+std::span<const int> Patch::faceCells() const
 {
     const std::vector<int>& owner = mesh_.owner();
 

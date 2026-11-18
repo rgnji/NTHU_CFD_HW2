@@ -85,7 +85,7 @@ Field<Type> PatchField<Type>::snGrad() const
         field.set
         (
             k, 
-            deltaCoeffs[k] * (this->get(k) - this->vol().get(faceCells[k]))
+            (this->get(k) - this->vol().get(faceCells[k])) * deltaCoeffs[k]
         );
     }
 

@@ -19,14 +19,11 @@ public:
 
     // Constructor
 
-        // Construct from element number
-        Field(int N);
-
         // Construct from field
         Field(const std::vector<Type>& field);
 
         // Construct from size and initial value
-        Field(int size, pTraits<Type> value);
+        Field(int size, const Type& value = pTraits<Type>::zero);
 
 
     // Member functions
@@ -53,6 +50,14 @@ public:
         std::vector<Type>& fieldList()
         {
             return field_;
+        }
+
+
+    // Operator overload
+    
+        Type& operator[](const int& a)
+        {
+            return field_.at(a);
         }
 };
 

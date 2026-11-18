@@ -70,8 +70,11 @@ public:
             return *(boundary_.at(patch));
         }
 
+        // Update boundary value after each step
+        void correctBoundaryConditions();
+
         // Output flowfield
-        void write(std::string path) const;
+        void write(std::string path, bool includeBoundary = true) const;
 };
 
 

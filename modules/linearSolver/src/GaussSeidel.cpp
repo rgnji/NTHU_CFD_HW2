@@ -36,7 +36,7 @@ void GaussSeidel::sweep
         xP /= diag[p];
 
         for (int f=os[p]; f<os[p + 1]; f++)
-            bPrime[p] -= lower[f] * xP;
+            bPrime[u[f]] -= lower[f] * xP;
 
         x[p] = xP;
     }

@@ -38,19 +38,19 @@ fixedValue<Type>::fixedValue
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
 template<class Type>
-std::unique_ptr<fixedValue<Type>> fixedValue<Type>::clone
+std::unique_ptr<PatchField<Type>> fixedValue<Type>::clone
 (
     const volField<Type>& newField
 ) const
 {
-    return fixedValue(*this, newField);
+    return std::make_unique<fixedValue>(*this, newField);
 }
 
 
 template<class Type>
 Field<Type> fixedValue<Type>::valueInternalCoeffs() const
 {
-    return Field<Type>(this->size(), pTraits<Type>::one * 0);
+    return Field<Type>(this->size(), pTraits<Type>::zero);
 }
 
 
@@ -69,7 +69,7 @@ Field<Type> fixedValue<Type>::gradientInternalCoeffs() const
 
     for (int k=0; k<this->size(); k++)
     {
-        field.set(k, - deltaCoeffs[k] * pTraits<Type>::one);
+        field.set(k, pTraits<Type>::one * deltaCoeffs[k] * -1);
     }
 
     return field;
@@ -84,7 +84,7 @@ Field<Type> fixedValue<Type>::gradientBoundaryCoeffs() const
 
     for (int k=0; k<this->size(); k++)
     {
-        field.set(k, deltaCoeffs[k] * this->get(k));
+        field.set(k, this->get(k) * deltaCoeffs[k]);
     }
 
     return field;

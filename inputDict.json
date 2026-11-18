@@ -1,38 +1,62 @@
 {
-    "convectionScheme": "upwind",
+    "mesh":
+    {
+        "node": [81, 81],
+        "size": [0.0125, 0.0125]
+    },
+    "mesh11111":
+    {
+        "node": [41, 41],
+        "size": [0.025, 0.025]
+    },
+
+    "convectionScheme": "QUICK",
+
+    "PecletNumber": 1.0,
 
     "0":
     {
-        "field": "T",
-        "initialValue": "0.0",
-        "patches":
+        "T":
         {
-            "left":
+            "initialValue": 0.0,
+            "patches":
             {
-                "type": "fixedValue",
-                "value": "1"
-            },
-            "right":
-            {
-                "type": "zeroGradient"
-            },
-            "bottom":
-            {
-                "type": "fixedValue",
-                "value": "1"
-            },
-            "top":
-            {
-                "type": "zeroGradient"
+                "left":
+                {
+                    "type": "fixedValue",
+                    "value": 1
+                },
+                "right":
+                {
+                    "type": "zeroGradient"
+                },
+                "bottom":
+                {
+                    "type": "fixedValue",
+                    "value": 0
+                },
+                "top":
+                {
+                    "type": "zeroGradient"
+                }
             }
         }
     },
 
-    "solver": "GaussSeidel",
-    "convergence": 
+    "linearSolver":
     {
-        "tolerance": 10e-7,
-        "relTol": 10e-2,
-        "maxIter": 10e3
+        "solver": "GaussSeidel",
+        "convergence": 
+        {
+            "tolerance": 1e-10,
+            "relTol": 0.1,
+            "maxIter": 1e5
+        }
+    },
+
+    "outerIterations":
+    {
+        "maxIter": 1e4,
+        "tolerance": 1e-6
     }
 }

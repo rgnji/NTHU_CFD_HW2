@@ -8,10 +8,10 @@
 // * * * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * //
 
 template<class Type>
-fvMatrix<Type> diffusionScheme::secondCentralDiff::interpolate
+fvMatrix<Type> diffusionScheme::secondCentralDiff<Type>::interpolate
 (
     const surfaceField<Type>& phi,
-    const volField<Type>& field
+    volField<Type>& field
 )
 {
     fvMatrix<Type> m(field);
@@ -25,14 +25,14 @@ fvMatrix<Type> diffusionScheme::secondCentralDiff::interpolate
 
         m.buildDiag(owner, phi.get(k) * deltaCoeffs.at(k));
         m.buildDiag(nbr, phi.get(k) * deltaCoeffs.at(k));
-        m.buildLower(owner, - phi.get(k) * deltaCoeffs.at(k));
-        m.buildUpper(nbr, - phi.get(k) * deltaCoeffs.at(k));
+        m.buildLower(k, - phi.get(k) * deltaCoeffs.at(k));
+        m.buildUpper(k, - phi.get(k) * deltaCoeffs.at(k));
     }
 
     for (int p=0; p<field.boundary().size(); p++)
     {
-        PatchField& pF = *(field.boundary().at(p).get());
-        Patch& patch = pF.patch();
+        const PatchField<Type>& pF = *(field.boundary().at(p));
+        const Patch& patch = pF.patch();
 
         for (int k=0; k<patch.nFaces(); k++)
         {
@@ -52,4 +52,6 @@ fvMatrix<Type> diffusionScheme::secondCentralDiff::interpolate
             );
         }
     }
+
+    return m;
 }

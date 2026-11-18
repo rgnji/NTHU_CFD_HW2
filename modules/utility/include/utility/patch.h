@@ -75,10 +75,10 @@ public:
         }
         
         // Access internal cells next to the boundary
-        const std::span<const int> faceCells() const;
+        std::span<const int> faceCells() const;
 
         // Return internal cell index according to face index
-        const int faceCells(int f) const
+        int faceCells(int f) const
         {
             return faceCells()[f];
         }

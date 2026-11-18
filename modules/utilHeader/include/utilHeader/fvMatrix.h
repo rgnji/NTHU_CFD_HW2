@@ -3,6 +3,7 @@
 
 #include "utility/lduMatrix.h"
 #include "linearSolver/linearSolver.h"
+#include "utility/pTraits.h"
 #include <vector>
 
 
@@ -41,8 +42,9 @@ public:
 
     // Constructor
 
+        // Allow manipulation of psi
         fvMatrix(volField<Type>& psi);
-
+        
 
     // Member Functions
 
@@ -57,6 +59,19 @@ public:
 
         // Build boundary coefficients
         void buildBoundaryCoeffs(int patch, int face, Type coeff);
+
+        // Add a value to the right-hand side of one cell
+        void addSource(int cell, const Type& value)
+        {
+            source_.set(cell, source_.get(cell) + value);
+        }
+
+        // Reset the right-hand side (boundary coefficients are kept)
+        void clearSource()
+        {
+            for (int k=0; k<source_.size(); k++)
+                source_.set(k, pTraits<Type>::zero);
+        }
 
         // Solve lduMatrix
         linearSolver::SolverPerformance solve(const linearSolver& solver);
